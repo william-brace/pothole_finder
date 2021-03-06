@@ -4,9 +4,9 @@ import { Route, Redirect, Switch } from "react-router-dom";
 import NavBar from "./components/navBar";
 import SigninForm from "./components/signinForm";
 import RegisterForm from "./components/registerForm";
-import firebase from "./firebase";
 import { AuthProvider } from "./contexts/AuthContext";
 import { PotectedRoute } from "./components/protectedRoute";
+import AddPotholes from "./addPotholes";
 
 function App() {
   const user = {
@@ -41,7 +41,8 @@ function App() {
           <Switch>
             <Route path="/register" component={RegisterForm} />
             <Route path="/signin" component={SigninForm} />
-            {/* <Route path="/logout" component={Logout} /> */}
+            <Route path="/addpotholes" component={AddPotholes} />
+
             {/* <Route path="/not-found" component={NotFound} /> */}
             <Redirect from="/" exact to="/" />
             <Redirect to="/not-found" />

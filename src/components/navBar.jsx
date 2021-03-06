@@ -11,39 +11,46 @@ import {
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
-  Alert,
 } from "reactstrap";
 import { useHistory, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { firestore } from "../firebase";
-import { getUserData } from "../firestoreQueries";
+// import { getUserData } from "../firestoreQueries";
 
 const NavBar = (props) => {
   const user = props.user;
   const [isOpen, setIsOpen] = useState(false);
-  const [currentUserDb, setCurrentUserDb] = useState(null);
-  const { logout, currentUser } = useAuth();
+  // const [currentUserData, setCurrentUserData] = useState(null);
+  const {
+    logout,
+    currentUser,
+    setCurrentUser,
+    currentUserData,
+    setCurrentUserData,
+  } = useAuth();
   const history = useHistory();
 
-  const getCurrentUserData = () => {
-    if (currentUser) {
-      getUserData(currentUser.uid).then((userData) => {
-        setCurrentUserDb(userData.data());
-      });
-    }
-  };
-  useEffect(() => {
-    getCurrentUserData();
-    if (currentUserDb) console.log(currentUserDb.role);
-  }, [currentUser]);
+  // const getCurrentUserData = () => {
+  //   if (currentUser) {
+  //     getUserData(currentUser.uid).then((userData) => {
+  //       setCurrentUserData(userData.data());
+  //     });
+  //   }
+  // };
+
+  // //Rund everytime the currentUser Changes
+  // useEffect(() => {
+  //   getCurrentUserData();
+  //   if (currentUserData) console.log(currentUserData.role);
+  // }, [currentUser]);
 
   const toggle = () => setIsOpen(!isOpen);
 
   const handleLogout = async () => {
     logout()
-      .then((value) => {
+      .then(() => {
         history.push("/signin");
-        setCurrentUserDb(null);
+        setCurrentUser(null);
+        setCurrentUserData(null);
       })
       .catch((error) => {
         console.log("unable to logout");
@@ -53,13 +60,15 @@ const NavBar = (props) => {
 
   return (
     <div>
+      {console.log(`currentUserData: ${currentUserData}`)}
+      {console.log(currentUser)}
       <Navbar color="light" light expand="md">
         <NavbarBrand href="/">PotholeFinder</NavbarBrand>
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
           <Nav className="mr-auto " navbar>
             <NavItem>
-              <NavLink href="/">Add Pothole</NavLink>
+              <Link to="/addpotholes">Add Pothole</Link>
             </NavItem>
             <NavItem>
               <NavLink href="/">Map</NavLink>
@@ -67,30 +76,30 @@ const NavBar = (props) => {
             <NavItem>
               <NavLink href="/">View Potholes</NavLink>
             </NavItem>
-            {!currentUserDb && (
+            <NavItem>
+              <NavLink onClick={handleLogout}>Logout</NavLink>
+            </NavItem>
+            {!currentUserData && (
               <React.Fragment>
                 <NavItem>
                   <Link to="/signin">Sign In</Link>
                 </NavItem>
                 <NavItem>
-                  <NavLink href="/register">Register</NavLink>
+                  <Link to="/register">Register</Link>
                 </NavItem>
               </React.Fragment>
             )}
 
-            {currentUserDb && currentUserDb.role === "person" && (
+            {currentUserData && currentUserData.role === "person" && (
               <React.Fragment>
                 <NavItem>
                   <NavLink href="/">Profile</NavLink>
                 </NavItem>
-                <NavItem>
-                  <NavLink onClick={handleLogout}>Logout</NavLink>
-                </NavItem>
               </React.Fragment>
             )}
-            {currentUserDb &&
-              (currentUserDb.role === "analyst" ||
-                currentUserDb.role === "manager") && (
+            {currentUserData &&
+              (currentUserData.role === "analyst" ||
+                currentUserData.role === "manager") && (
                 <React.Fragment>
                   <NavItem>
                     <NavLink href="/">Schedule</NavLink>
@@ -105,7 +114,7 @@ const NavBar = (props) => {
                           <NavLink href="/">Profile</NavLink>
                         </NavItem>
                       </DropdownItem>
-                      {currentUserDb.role === "manager" && (
+                      {currentUserData.role === "manager" && (
                         <DropdownItem>
                           <NavItem>
                             <NavLink href="/">Users</NavLink>

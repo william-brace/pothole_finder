@@ -57,7 +57,7 @@ export const SigninForm = () => {
             <Input
               innerRef={passwordRef}
               type="password"
-              name="password"     
+              name="password"
               id="examplePassword"
               placeholder="Password"
               required

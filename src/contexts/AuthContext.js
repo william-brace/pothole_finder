@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
-import app from "../firebase";
 import { auth, firestore } from "../firebase";
+import { getUserData } from "../firestoreQueries";
 
 const AuthContext = React.createContext();
 
@@ -26,6 +26,7 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState();
+  const [currentUserData, setCurrentUserData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const register = (email, password) => {
@@ -46,16 +47,37 @@ export const AuthProvider = ({ children }) => {
     return auth.signOut();
   };
 
+  const getCurrentUserData = (user) => {
+    if (user) {
+      getUserData(user.uid).then((userData) => {
+        setCurrentUserData(userData.data());
+        console.log(`current User data in authContext is ${currentUserData}`);
+      });
+    } else {
+      setCurrentUserData(null);
+      console.log(`current User data in authContext is ${currentUserData}`);
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setCurrentUser(user);
+      getCurrentUserData(user);
       setLoading(false);
     });
 
     return unsubscribe;
   }, []);
 
-  const value = { register, signin, currentUser, logout };
+  const value = {
+    register,
+    signin,
+    currentUser,
+    setCurrentUser,
+    currentUserData,
+    setCurrentUserData,
+    logout,
+  };
 
   return (
     <AuthContext.Provider value={value}>
