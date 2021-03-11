@@ -6,7 +6,9 @@ import SigninForm from "./components/signinForm";
 import RegisterForm from "./components/registerForm";
 import { AuthProvider } from "./contexts/AuthContext";
 import { PotectedRoute } from "./components/protectedRoute";
-import AddPotholes from "./addPotholes";
+import AddPotholes from "./components/addPotholes";
+import Map from "./components/map";
+import ViewPotholes from "./components/viewPotholes";
 
 function App() {
   const user = {
@@ -37,11 +39,13 @@ function App() {
           ))}
         </div> */}
 
-        <main className="container">
+        <main>
           <Switch>
             <Route path="/register" component={RegisterForm} />
             <Route path="/signin" component={SigninForm} />
             <Route path="/addpotholes" component={AddPotholes} />
+            <Route path="/viewpotholes" component={ViewPotholes} />
+            <Route path="/map" component={Map} />
 
             {/* <Route path="/not-found" component={NotFound} /> */}
             <Redirect from="/" exact to="/" />

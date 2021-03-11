@@ -71,13 +71,10 @@ const NavBar = (props) => {
               <Link to="/addpotholes">Add Pothole</Link>
             </NavItem>
             <NavItem>
-              <NavLink href="/">Map</NavLink>
+              <Link to="/map">Map</Link>
             </NavItem>
             <NavItem>
-              <NavLink href="/">View Potholes</NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink onClick={handleLogout}>Logout</NavLink>
+              <Link to="/viewpotholes">View Potholes</Link>
             </NavItem>
             {!currentUserData && (
               <React.Fragment>
@@ -94,6 +91,9 @@ const NavBar = (props) => {
               <React.Fragment>
                 <NavItem>
                   <NavLink href="/">Profile</NavLink>
+                </NavItem>
+                <NavItem>
+                  <NavLink onClick={handleLogout}>Logout</NavLink>
                 </NavItem>
               </React.Fragment>
             )}

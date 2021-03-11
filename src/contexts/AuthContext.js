@@ -35,6 +35,7 @@ export const AuthProvider = ({ children }) => {
       .then((credential) => {
         return firestore.collection("users").doc(credential.user.uid).set({
           role: "manager",
+          potholes: [],
         });
       });
   };

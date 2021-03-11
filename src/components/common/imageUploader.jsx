@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { FormGroup, Input } from "reactstrap";
+import { storage } from "../../firebase.js";
 
 const ImageUploader = () => {
   const [selectedImages, setSelectedImages] = useState([]);
@@ -8,15 +9,19 @@ const ImageUploader = () => {
     if (e.target.files) {
       console.log(e.target.files);
 
-      if (e.target.files) {
-        const filesArray = Array.from(e.target.files).map((file) =>
-          URL.createObjectURL(file)
-        );
+      const imagesArray = Array.from(e.target.files);
 
-        setSelectedImages((prevImages) => prevImages.concat(filesArray));
+      setSelectedImages(imagesArray);
 
-        console.log(filesArray);
-      }
+      // if (e.target.files) {
+      //   const filesArray = Array.from(e.target.files).map((file) =>
+      //     URL.createObjectURL(file)
+      //   );
+
+      //   setSelectedImages((prevImages) => prevImages.concat(filesArray));
+
+      //   console.log(filesArray);
+      // }
     }
   };
 
@@ -24,9 +29,35 @@ const ImageUploader = () => {
     setSelectedImages(selectedImages.filter((pic) => pic !== image));
   };
 
+  const handleImageUpload = () => {
+    selectedImages.forEach((image) => {
+      const uploadTask = storage.ref().child(`images/${image.name}`).put(image);
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {},
+        (error) => {
+          // Handle unsuccessful uploads
+          console.log("Error uploading image", image.name);
+        },
+        () => {
+          // Handle successful uploads on complete
+          // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+          uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+            console.log("File available at", downloadURL);
+          });
+        }
+      );
+    });
+  };
+
   const renderImages = (images) => {
     if (images) {
-      return images.map((image) => {
+      const imageDisplay = Array.from(images).map((image) =>
+        URL.createObjectURL(image)
+      );
+
+      return imageDisplay.map((image, index) => {
         return (
           <span className="position-relative">
             <img
@@ -39,7 +70,7 @@ const ImageUploader = () => {
             <span
               className="material-icons position-absolute top-0 end-0"
               style={{ colot: "white" }}
-              onClick={() => handleImageDelete(image)}
+              onClick={() => handleImageDelete(selectedImages[index])}
               data-key={image}
             >
               cancel
@@ -62,6 +93,8 @@ const ImageUploader = () => {
         multiple
         onChange={handleImageChange}
       />
+      <span onClick={handleImageUpload}>Upload</span>
+      {console.log(selectedImages)}
     </FormGroup>
   );
 };
