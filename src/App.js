@@ -9,6 +9,8 @@ import { PotectedRoute } from "./components/protectedRoute";
 import AddPotholes from "./components/addPotholes";
 import Map from "./components/map";
 import ViewPotholes from "./components/viewPotholes";
+import MapBox from "./components/mapBox";
+import ViewAPothole from "./components/viewAPothole";
 
 function App() {
   const user = {
@@ -45,7 +47,8 @@ function App() {
             <Route path="/signin" component={SigninForm} />
             <Route path="/addpotholes" component={AddPotholes} />
             <Route path="/viewpotholes" component={ViewPotholes} />
-            <Route path="/map" component={Map} />
+            <Route path="/viewapothole/:id" component={ViewAPothole} />
+            <Route path="/map" component={MapBox} />
 
             {/* <Route path="/not-found" component={NotFound} /> */}
             <Redirect from="/" exact to="/" />

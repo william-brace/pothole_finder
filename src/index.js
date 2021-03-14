@@ -6,6 +6,7 @@ import "bootstrap/dist/css/bootstrap.css";
 import "leaflet/dist/leaflet.css";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-time-picker/dist/TimePicker.css";
+// import "mapbox-gl/dist/mapbox-gl.css";
 import "./index.css";
 
 ReactDOM.render(

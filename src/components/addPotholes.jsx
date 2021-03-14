@@ -12,6 +12,7 @@ import ScrollSection from "./common/scrollSection";
 import SmallInput from "./common/smallInput";
 import { useAuth } from "../contexts/AuthContext";
 import Map from "./map";
+import MapBox from "./mapBox";
 
 const AddPotholes = () => {
   const {
@@ -28,9 +29,16 @@ const AddPotholes = () => {
   const [startDate, setStartDate] = useState(new Date());
   const [selectedImages, setSelectedImages] = useState([]); //Image handler
 
-  const sizeRef = useRef("Small");
-  const locationRef = useRef("Here");
-  const descriptionRef = useRef("");
+  const sizeRef = useRef(null);
+  const locationRef = useRef(null);
+  const descriptionRef = useRef(null);
+  const costRef = useRef(null);
+  const materialsRef = useRef(null);
+  const priorityRef = useRef(null);
+
+  const [lng, setLng] = useState();
+  const [lat, setLat] = useState();
+  const [zoom, setZoom] = useState(10);
 
   const updateMedia = () => {
     setDesktop(window.innerWidth > 720); //720 is bootstrap md breakpoint
@@ -40,6 +48,22 @@ const AddPotholes = () => {
     window.addEventListener("resize", updateMedia);
     return () => window.removeEventListener("resize", updateMedia);
   });
+
+  // useEffect(() => {
+  //   navigator.geolocation.getCurrentPosition(successLocation, errorLocation, {
+  //     enableHighAccuracy: true,
+  //   });
+
+  //   function successLocation(position) {
+  //     console.log([position.coords.longitude, position.coords.latitude]);
+  //     setLng(position.coords.longitude);
+  //     setLat(position.coords.latitude);
+  //   }
+
+  //   function errorLocation() {
+  //     console.log([-2.24, 53.48]);
+  //   }
+  // }, []);
 
   const handleShowCost = (e) => {
     e.preventDefault();
@@ -150,8 +174,11 @@ const AddPotholes = () => {
                 userWhoAdded: currentUser.email,
                 images: imageArray,
                 size: sizeRef.current.value,
-                location: locationRef.current.value,
+                location: { lng: lng, lat: lat },
                 description: descriptionRef.current.value,
+                cost: costRef.current.value,
+                materials: materialsRef.current.value,
+                priority: priorityRef.current.value,
               };
 
               firestore
@@ -205,80 +232,123 @@ const AddPotholes = () => {
   // };
 
   return (
-    <ScrollSection heading1={"Report A Pothole"} heading2={"Pothole #1375"}>
-      <Form>
-        {/* <ImageUploader /> */}
-        <FormGroup>
-          <span>{renderImages(selectedImages)}</span>
-          <Input
-            className="border rounded py-2 px-2"
-            type={"file"}
-            name={"imageUploader"}
-            id="exampleName"
-            placeholder={"Upload Images Here"}
-            multiple
-            onChange={handleImageChange}
-          />
-          <span onClick={handleImageUpload}>Upload</span>
-          {console.log(selectedImages)}
-        </FormGroup>
-        <FormGroup>
-          <Input innerRef={sizeRef} type="select" name="size">
-            <option>Small</option>
-            <option>Medium</option>
-            <option>Big</option>
-          </Input>
-        </FormGroup>
-        <FormGroup>
-          <Input
-            innerRef={locationRef}
-            type="text"
-            name="location"
-            placeholder="Location"
-          ></Input>
-        </FormGroup>
-        <FormGroup>
-          <Input
-            innerRef={descriptionRef}
-            type={"text"}
-            name={"description"}
-            placeholder={"Description"}
-          ></Input>
-        </FormGroup>
+    <div className="container-fluid" id="no-padding">
+      {/* <div className="row"> */}
 
-        {/* <SmallInput
+      <ScrollSection
+        className="col-12 col-sm-12 col-md-3"
+        heading1={"Report A Pothole"}
+        heading2={"Pothole #1375"}
+      >
+        <Form>
+          {/* <ImageUploader /> */}
+          <FormGroup>
+            {renderImages(selectedImages)}
+            <Input
+              className="border rounded py-2 px-2"
+              type={"file"}
+              name={"imageUploader"}
+              id="exampleName"
+              placeholder={"Upload Images Here"}
+              multiple
+              onChange={handleImageChange}
+            />
+
+            {console.log(selectedImages)}
+          </FormGroup>
+          <FormGroup>
+            <Input innerRef={sizeRef} type="select" name="size">
+              <option value="" disabled selected hidden>
+                Size
+              </option>
+              <option>Small</option>
+              <option>Medium</option>
+              <option>Big</option>
+            </Input>
+          </FormGroup>
+          {!lat && !lng && (
+            <FormGroup>
+              <Input
+                innerRef={locationRef}
+                type="text"
+                name="location"
+                placeholder="Finding location..."
+                disabled
+              ></Input>
+            </FormGroup>
+          )}
+
+          {lat && lng && (
+            <FormGroup>
+              <Input
+                innerRef={locationRef}
+                type="text"
+                name="location"
+                value={`Location is ${lat}, ${lng}`}
+                disabled
+              ></Input>
+            </FormGroup>
+          )}
+          <FormGroup>
+            <Input
+              innerRef={descriptionRef}
+              type={"text"}
+              name={"description"}
+              placeholder={"Description"}
+            ></Input>
+          </FormGroup>
+
+          {/* <SmallInput
           innerRef={locationRef}
           type={"text"}
           name={"location"}
           placeholder="Location"
         /> */}
-        {!isDesktop && <Map id="scroll-map"></Map>}
-        {/* <BigInput
+          {!isDesktop && (
+            <div style={{ position: "relative" }}>
+              <MapBox
+                id="scroll-map"
+                lat={lat}
+                lng={lng}
+                zoom={zoom}
+                mapClass="map-scroll"
+                updateLat={setLat}
+                updateLng={setLng}
+              ></MapBox>
+            </div>
+          )}
+          {/* <BigInput
           innerRef={descriptionRef}
           type={"text"}
           name={"description"}
           placeholder={"Description"}
         /> */}
 
-        {showCost && (
+          {/* {showCost && ( */}
           <React.Fragment>
+            {console.log(showCost, costRef)}
             <h5>Cost</h5>
-            <SmallInput
-              type={"number"}
-              name={"cost"}
-              placeholder={"Estimated cost to repair"}
-            />
-            <BigInput
-              type={"text"}
-              name={"materials"}
-              placeholder={"Estimated materials required to repair"}
-            />
             <FormGroup>
               <Input
-                type="select"
-                name="priority"
-                placeholder="Urgency to repair - 1-5"
-              >
+                innerRef={costRef}
+                type={"number"}
+                name={"cost"}
+                placeholder={"Estimated cost to repair"}
+              ></Input>
+            </FormGroup>
+            <FormGroup>
+              <Input
+                innerRef={materialsRef}
+                type={"text"}
+                name={"materials"}
+                placeholder={"Estimated materials required to repair"}
+              ></Input>
+            </FormGroup>
+            <FormGroup>
+              <Input type="select" name="priority" innerRef={priorityRef}>
+                <option value="" disabled selected hidden>
+                  Priority rating - 1-5
+                </option>
                 <option>1</option>
                 <option>2</option>
                 <option>3</option>
@@ -287,25 +357,25 @@ const AddPotholes = () => {
               </Input>
             </FormGroup>
           </React.Fragment>
-        )}
+          {/* )} */}
 
-        {showSchedule && (
-          <React.Fragment>
-            <h5>Schedule</h5>
-            {/* <SmallInput
+          {showSchedule && (
+            <React.Fragment>
+              <h5>Schedule</h5>
+              {/* <SmallInput
               type={"date"}
               name={"date"}
               placeholder={"Schedule a date for reapir"}
             /> */}
-            <DatePicker
-              selected={startDate}
-              onChange={(date) => setStartDate(date)}
-              placeholderText={"Select a repairs date"}
-              dateFormat="d, MMMM, yyyy"
-            />
-            <TimePicker />
-            <TimePicker />
-            {/* <SmallInput
+              <DatePicker
+                selected={startDate}
+                onChange={(date) => setStartDate(date)}
+                placeholderText={"Select a repairs date"}
+                dateFormat="d, MMMM, yyyy"
+              />
+              <TimePicker />
+              <TimePicker />
+              {/* <SmallInput
               type={"time"}
               name={"starttime"}
               placeholder={"Start time"}
@@ -315,38 +385,53 @@ const AddPotholes = () => {
               name={"endtime"}
               placeholder={"End time"}
             /> */}
-            <SmallInput
-              type={"text"}
-              name={"scheduledpersons"}
-              placeholder={"Add persons to this job"}
-            />
-            <BigInput
-              type={"text"}
-              name={"personsadded"}
-              placeholder={"Persons Added"}
-            />
-          </React.Fragment>
-        )}
+              <SmallInput
+                type={"text"}
+                name={"scheduledpersons"}
+                placeholder={"Add persons to this job"}
+              />
+              <BigInput
+                type={"text"}
+                name={"personsadded"}
+                placeholder={"Persons Added"}
+              />
+            </React.Fragment>
+          )}
 
-        <div className="d-f1lex justify-content-between">
-          {currentUserData &&
-            (currentUserData.role == "analyst" ||
-              currentUserData.role == "manager") && (
-              <Button color="primary" outline onClick={handleShowCost}>
-                {showCost ? "Remove Cost" : "Add Cost"}
+          <div className="d-f1lex justify-content-between">
+            {currentUserData &&
+              (currentUserData.role == "analyst" ||
+                currentUserData.role == "manager") && (
+                <Button color="primary" outline onClick={handleShowCost}>
+                  {showCost ? "Remove Cost" : "Add Cost"}
+                </Button>
+              )}
+            {currentUserData && currentUserData.role === "manager" && (
+              <Button color="primary" outline onClick={handleShowSchedule}>
+                {showSchedule ? "Remove Schedule" : "Add Schedule"}
               </Button>
             )}
-          {currentUserData && currentUserData.role === "manager" && (
-            <Button color="primary" outline onClick={handleShowSchedule}>
-              {showSchedule ? "Remove Schedule" : "Add Schedule"}
+            <Button type="submit" onClick={handleSubmit} color="primary">
+              Submit
             </Button>
-          )}
-          <Button type="submit" onClick={handleSubmit} color="primary">
-            Submit
-          </Button>
+          </div>
+        </Form>
+      </ScrollSection>
+      {isDesktop && (
+        <div className="col-md" style={{ position: "relative" }}>
+          <MapBox
+            // id="scroll-map"
+            lat={lat}
+            lng={lng}
+            zoom={zoom}
+            mapClass="map-half-page"
+            updateLat={setLat}
+            updateLng={setLng}
+          ></MapBox>
         </div>
-      </Form>
-    </ScrollSection>
+      )}
+    </div>
+    // </div>
   );
 };
 

@@ -18,6 +18,75 @@
   margin-bottom: 1rem;
 }
 
+/* .map-container {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  z-index: -1;
+} */
+
+.map-full-page {
+  position: absolute;
+  height: 100vh;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  z-index: -1;
+}
+
+.map-half-page {
+  position: absolute;
+  height: 95.4vh;
+}
+
+.map-scroll {
+  height: 50vh;
+  border-radius: 10px;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.card {
+  max-width: 15rem;
+  height: 17.5rem;
+  margin: 3rem;
+  border-radius: 2rem;
+}
+
+#no-margin-padding {
+  padding: 0;
+  margin: 0;
+}
+
+#no-padding {
+  padding: 0;
+}
+
+@media (min-width: 768px) {
+  .scroll-section {
+    width: 25rem;
+    height: 95.4vh;
+    overflow-y: auto;
+  }
+}
+
+/* Mapbox sidebar styling */
+.sidebar {
+  background-color: rgba(35, 55, 75, 0.9);
+  color: #ffffff;
+  padding: 6px 12px;
+  font: 15px/24px monospace;
+  z-index: 1;
+  position: absolute;
+  top: 3.5rem;
+  left: 0;
+  margin: 12px;
+  border-radius: 4px;
+}
+
 /* .react-time-picker__inputGroup,
 .react-time-picker__inputGroup__input,
 .react-time-picker__wrapper {

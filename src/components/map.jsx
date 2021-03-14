@@ -45,8 +45,8 @@ const Map = (props) => {
   // const [position, setPosition] = useState(null);
   // let place;
 
-  const DEFAULT_LATITUDE = 13.1939;
-  const DEFAULT_LONGITUDE = -59.5432;
+    const DEFAULT_LATITUDE = 13.1939;
+    const DEFAULT_LONGITUDE = -59.5432;
 
   const latitude = props.coords ? props.coords.latitude : DEFAULT_LATITUDE;
   const longitude = props.coords ? props.coords.longitude : DEFAULT_LONGITUDE;

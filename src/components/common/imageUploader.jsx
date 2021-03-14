@@ -83,7 +83,7 @@ const ImageUploader = () => {
 
   return (
     <FormGroup>
-      <span>{renderImages(selectedImages)}</span>
+      {renderImages(selectedImages)}
       <Input
         className="border rounded py-2 px-2"
         type={"file"}
@@ -93,7 +93,6 @@ const ImageUploader = () => {
         multiple
         onChange={handleImageChange}
       />
-      <span onClick={handleImageUpload}>Upload</span>
       {console.log(selectedImages)}
     </FormGroup>
   );
