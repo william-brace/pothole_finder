@@ -34,6 +34,7 @@ export const AuthProvider = ({ children }) => {
       .createUserWithEmailAndPassword(email, password)
       .then((credential) => {
         return firestore.collection("users").doc(credential.user.uid).set({
+          email: email,
           role: "manager",
           potholes: [],
         });

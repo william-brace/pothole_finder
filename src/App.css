@@ -1,3 +1,43 @@
+html {
+  font-size: 10px;
+}
+
+@media (min-width: 321px) {
+  html {
+    font-size: 11px;
+  }
+}
+
+@media (min-width: 376px) {
+  html {
+    font-size: 13px;
+  }
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 992px) {
+  html {
+    font-size: 18px;
+  }
+}
+
+@media (min-width: 1400px) {
+  html {
+    font-size: 19px;
+  }
+}
+
+@media (min-width: 1400px) {
+  html {
+    font-size: 22px;
+  }
+}
+
 .map-container {
   height: 100vh;
 }
@@ -6,6 +46,47 @@
   height: 50vh;
 }
 
+.card-img {
+  width: 6rem;
+  height: 7.5rem;
+  object-fit: cover;
+}
+
+.card-body {
+  padding-top: 0.5rem !important;
+}
+
+.card {
+  max-width: 12rem;
+  height: 16rem;
+  margin: 1rem;
+  border-radius: 2rem;
+}
+
+/* .card-img {
+  width: 100%;
+  height: 20vh;
+  object-fit: cover;
+} */
+
+.flex-container {
+  margin: 1rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 768px) {
+  .flex-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
 .react-datepicker-wrapper,
 .react-datepicker__input-container,
 .react-datepicker__input-container input {
@@ -39,7 +120,11 @@
 
 .map-half-page {
   position: absolute;
-  height: 95.4vh;
+  height: 89vh;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
 }
 
 .map-scroll {
@@ -47,13 +132,6 @@
   border-radius: 10px;
   margin-top: 2rem;
   margin-bottom: 2rem;
-}
-
-.card {
-  max-width: 15rem;
-  height: 17.5rem;
-  margin: 3rem;
-  border-radius: 2rem;
 }
 
 #no-margin-padding {
@@ -68,7 +146,7 @@
 @media (min-width: 768px) {
   .scroll-section {
     width: 25rem;
-    height: 95.4vh;
+    height: 89vh;
     overflow-y: auto;
   }
 }
@@ -92,42 +170,3 @@
 .react-time-picker__wrapper {
   width: 100%;
 } */
-
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}

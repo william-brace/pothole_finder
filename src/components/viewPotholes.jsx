@@ -49,12 +49,7 @@ const ViewPotholes = () => {
         // pothole.image = URL.createObjectURL(pothole.image);
         return (
           <Card>
-            <CardImg
-              top
-              width="30%"
-              src={pothole.images[0]}
-              alt={pothole.description}
-            />
+            <CardImg src={pothole.images[0]} alt={pothole.description} />
             <CardBody>
               <CardTitle tag="h4">{pothole.size}</CardTitle>
               <div className="d-flex justify-content-start">
@@ -71,8 +66,13 @@ const ViewPotholes = () => {
                 <Button color="primary" outline className="pl-4 pr-4 ">
                   Fix it!
                 </Button>
-                <Button color="primary" className="pl-4 pr-4">
-                  <Link to={`/viewapothole/${pothole.id}`}>View</Link>
+                <Button color="primary" className="pl-1 pr-1">
+                  <Link
+                    to={`/viewapothole/${pothole.id}`}
+                    style={{ color: "white" }}
+                  >
+                    View
+                  </Link>
                 </Button>
               </div>
             </CardBody>
@@ -128,8 +128,12 @@ const ViewPotholes = () => {
       {console.log(potholeArray)}
       {renderImages(potholeImages)} */}
 
-      <div className="container" id="no-margin-padding">
+      {/* <div className="container" id="no-margin-padding">
         <div className="row">{potholes && renderPotholes(potholes)}</div>
+      </div> */}
+
+      <div className="flex-container">
+        {potholes && renderPotholes(potholes)}
       </div>
     </React.Fragment>
   );

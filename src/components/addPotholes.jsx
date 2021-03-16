@@ -7,6 +7,8 @@ import { Icon } from "leaflet";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import TimePicker from "react-time-picker";
 import { storage, firestore } from "../firebase.js";
+import Select from "react-select";
+import makeAnimated from "react-select/animated";
 
 import ScrollSection from "./common/scrollSection";
 import SmallInput from "./common/smallInput";
@@ -23,11 +25,16 @@ const AddPotholes = () => {
     setCurrentUserData,
   } = useAuth();
 
+  const animatedComponents = makeAnimated();
+
   const [showCost, setShowCost] = useState(false);
   const [showSchedule, setShowSchedule] = useState(false);
   const [isDesktop, setDesktop] = useState(window.innerWidth > 720); //720 is bootstrap md breakpoint
-  const [startDate, setStartDate] = useState(new Date());
+  const [startDate, setStartDate] = useState();
+  const [endDate, setEndDate] = useState();
   const [selectedImages, setSelectedImages] = useState([]); //Image handler
+  const [selectedPersons, setSelectedPersons] = useState();
+  const [scheduleListUsers, setScheduleListUsers] = useState([]);
 
   const sizeRef = useRef(null);
   const locationRef = useRef(null);
@@ -35,6 +42,8 @@ const AddPotholes = () => {
   const costRef = useRef(null);
   const materialsRef = useRef(null);
   const priorityRef = useRef(null);
+  const dateRef = useRef(null);
+  const personsRef = useRef(null);
 
   const [lng, setLng] = useState();
   const [lat, setLat] = useState();
@@ -48,6 +57,10 @@ const AddPotholes = () => {
     window.addEventListener("resize", updateMedia);
     return () => window.removeEventListener("resize", updateMedia);
   });
+
+  useEffect(() => {
+    console.log("Hello");
+  }, [showSchedule == true]);
 
   // useEffect(() => {
   //   navigator.geolocation.getCurrentPosition(successLocation, errorLocation, {
@@ -65,6 +78,12 @@ const AddPotholes = () => {
   //   }
   // }, []);
 
+  useEffect(() => {
+    if (showSchedule === true) {
+      getScheduleUsers(showSchedule);
+    }
+  }, [showSchedule]);
+
   const handleShowCost = (e) => {
     e.preventDefault();
     setShowCost(!showCost);
@@ -75,6 +94,31 @@ const AddPotholes = () => {
     setShowSchedule(!showSchedule);
   };
 
+  const getScheduleUsers = (showScheduleValue) => {
+    const userArray = [];
+    if (showScheduleValue === true) {
+      firestore
+        .collection("users")
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((user) => {
+            console.log(`email is`, user.data().email);
+            const userData = {
+              value: user.data().email,
+              label: `${user.data().email} - ${user.data().role}`,
+            };
+            userArray.push(userData);
+            console.log(userData);
+          });
+        })
+        .then(() => {
+          setScheduleListUsers(userArray);
+        })
+        .catch((error) => {
+          console.log("Error getting schedule users: ", error);
+        });
+    }
+  };
   const handleImageChange = (e) => {
     if (e.target.files) {
       console.log(e.target.files);
@@ -179,6 +223,9 @@ const AddPotholes = () => {
                 cost: costRef.current.value,
                 materials: materialsRef.current.value,
                 priority: priorityRef.current.value,
+                startDate: startDate,
+                endDate: endDate,
+                personsAssigned: selectedPersons,
               };
 
               firestore
@@ -231,151 +278,168 @@ const AddPotholes = () => {
   //   console.log(`submit working`, pothole);
   // };
 
+  const handlePersonChange = (persons) => {
+    const newPersons = persons.map((person) => {
+      return person.value;
+    });
+
+    setSelectedPersons(newPersons);
+  };
+
   return (
     <div className="container-fluid" id="no-padding">
-      {/* <div className="row"> */}
+      <div className="row">
+        <ScrollSection
+          className=" col-md-4"
+          heading1={"Report A Pothole"}
+          heading2={"Pothole #1375"}
+        >
+          <Form className="scroll-section-form">
+            {/* <ImageUploader /> */}
+            <FormGroup>
+              {renderImages(selectedImages)}
+              <Input
+                className="border rounded py-2 px-2"
+                type={"file"}
+                name={"imageUploader"}
+                id="exampleName"
+                placeholder={"Upload Images Here"}
+                multiple
+                onChange={handleImageChange}
+              />
 
-      <ScrollSection
-        className="col-12 col-sm-12 col-md-3"
-        heading1={"Report A Pothole"}
-        heading2={"Pothole #1375"}
-      >
-        <Form>
-          {/* <ImageUploader /> */}
-          <FormGroup>
-            {renderImages(selectedImages)}
-            <Input
-              className="border rounded py-2 px-2"
-              type={"file"}
-              name={"imageUploader"}
-              id="exampleName"
-              placeholder={"Upload Images Here"}
-              multiple
-              onChange={handleImageChange}
-            />
+              {console.log(selectedImages)}
+            </FormGroup>
+            <FormGroup>
+              <Input innerRef={sizeRef} type="select" name="size">
+                <option value="" disabled selected hidden>
+                  Size
+                </option>
+                <option>Small</option>
+                <option>Medium</option>
+                <option>Big</option>
+              </Input>
+            </FormGroup>
+            {!lat && !lng && (
+              <FormGroup>
+                <Input
+                  innerRef={locationRef}
+                  type="text"
+                  name="location"
+                  placeholder="Finding location..."
+                  disabled
+                ></Input>
+              </FormGroup>
+            )}
 
-            {console.log(selectedImages)}
-          </FormGroup>
-          <FormGroup>
-            <Input innerRef={sizeRef} type="select" name="size">
-              <option value="" disabled selected hidden>
-                Size
-              </option>
-              <option>Small</option>
-              <option>Medium</option>
-              <option>Big</option>
-            </Input>
-          </FormGroup>
-          {!lat && !lng && (
+            {lat && lng && (
+              <FormGroup>
+                <Input
+                  innerRef={locationRef}
+                  type="text"
+                  name="location"
+                  value={`Location is ${lat}, ${lng}`}
+                  disabled
+                ></Input>
+              </FormGroup>
+            )}
             <FormGroup>
               <Input
-                innerRef={locationRef}
-                type="text"
-                name="location"
-                placeholder="Finding location..."
-                disabled
+                innerRef={descriptionRef}
+                type={"text"}
+                name={"description"}
+                placeholder={"Description"}
               ></Input>
             </FormGroup>
-          )}
 
-          {lat && lng && (
-            <FormGroup>
-              <Input
-                innerRef={locationRef}
-                type="text"
-                name="location"
-                value={`Location is ${lat}, ${lng}`}
-                disabled
-              ></Input>
-            </FormGroup>
-          )}
-          <FormGroup>
-            <Input
-              innerRef={descriptionRef}
-              type={"text"}
-              name={"description"}
-              placeholder={"Description"}
-            ></Input>
-          </FormGroup>
-
-          {/* <SmallInput
+            {/* <SmallInput
           innerRef={locationRef}
           type={"text"}
           name={"location"}
           placeholder="Location"
         /> */}
-          {!isDesktop && (
-            <div style={{ position: "relative" }}>
-              <MapBox
-                id="scroll-map"
-                lat={lat}
-                lng={lng}
-                zoom={zoom}
-                mapClass="map-scroll"
-                updateLat={setLat}
-                updateLng={setLng}
-              ></MapBox>
-            </div>
-          )}
-          {/* <BigInput
+            {!isDesktop && (
+              <div style={{ position: "relative" }}>
+                <MapBox
+                  id="scroll-map"
+                  lat={lat}
+                  lng={lng}
+                  zoom={zoom}
+                  mapClass="map-scroll"
+                  updateLat={setLat}
+                  updateLng={setLng}
+                ></MapBox>
+              </div>
+            )}
+            {/* <BigInput
           innerRef={descriptionRef}
           type={"text"}
           name={"description"}
           placeholder={"Description"}
         /> */}
 
-          {/* {showCost && ( */}
-          <React.Fragment>
-            {console.log(showCost, costRef)}
-            <h5>Cost</h5>
-            <FormGroup>
-              <Input
-                innerRef={costRef}
-                type={"number"}
-                name={"cost"}
-                placeholder={"Estimated cost to repair"}
-              ></Input>
-            </FormGroup>
-            <FormGroup>
-              <Input
-                innerRef={materialsRef}
-                type={"text"}
-                name={"materials"}
-                placeholder={"Estimated materials required to repair"}
-              ></Input>
-            </FormGroup>
-            <FormGroup>
-              <Input type="select" name="priority" innerRef={priorityRef}>
-                <option value="" disabled selected hidden>
-                  Priority rating - 1-5
-                </option>
-                <option>1</option>
-                <option>2</option>
-                <option>3</option>
-                <option>4</option>
-                <option>5</option>
-              </Input>
-            </FormGroup>
-          </React.Fragment>
-          {/* )} */}
+            {showCost && (
+              <React.Fragment>
+                {console.log(showCost, costRef)}
+                <h5>Cost</h5>
+                <FormGroup>
+                  <Input
+                    innerRef={costRef}
+                    type={"number"}
+                    name={"cost"}
+                    placeholder={"Estimated cost to repair"}
+                  ></Input>
+                </FormGroup>
+                <FormGroup>
+                  <Input
+                    innerRef={materialsRef}
+                    type={"text"}
+                    name={"materials"}
+                    placeholder={"Estimated materials required to repair"}
+                  ></Input>
+                </FormGroup>
+                <FormGroup>
+                  <Input type="select" name="priority" innerRef={priorityRef}>
+                    <option value="" disabled selected hidden>
+                      Priority rating - 1-5
+                    </option>
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                  </Input>
+                </FormGroup>
+              </React.Fragment>
+            )}
 
-          {showSchedule && (
-            <React.Fragment>
-              <h5>Schedule</h5>
-              {/* <SmallInput
+            {showSchedule && (
+              <React.Fragment>
+                <h5>Schedule</h5>
+                {/* <SmallInput
               type={"date"}
               name={"date"}
               placeholder={"Schedule a date for reapir"}
             /> */}
-              <DatePicker
-                selected={startDate}
-                onChange={(date) => setStartDate(date)}
-                placeholderText={"Select a repairs date"}
-                dateFormat="d, MMMM, yyyy"
-              />
-              <TimePicker />
-              <TimePicker />
-              {/* <SmallInput
+                <DatePicker
+                  selected={startDate}
+                  onChange={(date) => setStartDate(date)}
+                  placeholderText={"Select a repairs start date"}
+                  dateFormat="d, MMMM, yyyy h:mm aa"
+                  showTimeInput
+                />
+                <DatePicker
+                  selected={endDate}
+                  onChange={(date) => setEndDate(date)}
+                  placeholderText={"Select a repairs end date"}
+                  dateFormat="d, MMMM, yyyy h:mm aa"
+                  showTimeInput
+                />
+                {/* <TimePicker />
+                <TimePicker /> */}
+                {console.log(startDate)}
+                {console.log(endDate)}
+                {/* <SmallInput
               type={"time"}
               name={"starttime"}
               placeholder={"Start time"}
@@ -385,53 +449,70 @@ const AddPotholes = () => {
               name={"endtime"}
               placeholder={"End time"}
             /> */}
-              <SmallInput
-                type={"text"}
-                name={"scheduledpersons"}
-                placeholder={"Add persons to this job"}
-              />
-              <BigInput
-                type={"text"}
-                name={"personsadded"}
-                placeholder={"Persons Added"}
-              />
-            </React.Fragment>
-          )}
+                {/* <SmallInput
+                  type={"text"}
+                  name={"scheduledpersons"}
+                  placeholder={"Add persons to this job"}
+                />
+                <BigInput
+                  type={"text"}
+                  name={"personsadded"}
+                  placeholder={"Persons Added"}
+                /> */}
+                <Select
+                  closeMenuOnSelect={false}
+                  components={animatedComponents}
+                  defaultValue={"dog"}
+                  isMulti
+                  options={scheduleListUsers}
+                  ref={personsRef}
+                  onChange={handlePersonChange}
+                  placeholder={"Select persons to assign to repair job..."}
+                />
+                {/* [
+                    { value: "chocolate", label: "Chocolate" },
+                    { value: "strawberry", label: "Strawberry" },
+                    { value: "vanilla", label: "Vanilla" },
+                  ] */}
+                {console.log(selectedPersons)}
+              </React.Fragment>
+            )}
 
-          <div className="d-f1lex justify-content-between">
-            {currentUserData &&
-              (currentUserData.role == "analyst" ||
-                currentUserData.role == "manager") && (
-                <Button color="primary" outline onClick={handleShowCost}>
-                  {showCost ? "Remove Cost" : "Add Cost"}
+            <div className="d-f1lex justify-content-between">
+              {currentUserData &&
+                (currentUserData.role == "analyst" ||
+                  currentUserData.role == "manager") && (
+                  <Button color="primary" outline onClick={handleShowCost}>
+                    {showCost ? "Remove Cost" : "Add Cost"}
+                  </Button>
+                )}
+              {currentUserData && currentUserData.role === "manager" && (
+                <Button color="primary" outline onClick={handleShowSchedule}>
+                  {showSchedule ? "Remove Schedule" : "Add Schedule"}
                 </Button>
               )}
-            {currentUserData && currentUserData.role === "manager" && (
-              <Button color="primary" outline onClick={handleShowSchedule}>
-                {showSchedule ? "Remove Schedule" : "Add Schedule"}
+              <Button type="submit" onClick={handleSubmit} color="primary">
+                Submit
               </Button>
-            )}
-            <Button type="submit" onClick={handleSubmit} color="primary">
-              Submit
-            </Button>
+            </div>
+          </Form>
+        </ScrollSection>
+        {/* style={{ position: "relative" }} */}
+        {isDesktop && (
+          <div className="col-md-8">
+            <MapBox
+              // id="scroll-map"
+              lat={lat}
+              lng={lng}
+              zoom={zoom}
+              mapClass="map-half-page"
+              updateLat={setLat}
+              updateLng={setLng}
+            ></MapBox>
           </div>
-        </Form>
-      </ScrollSection>
-      {isDesktop && (
-        <div className="col-md" style={{ position: "relative" }}>
-          <MapBox
-            // id="scroll-map"
-            lat={lat}
-            lng={lng}
-            zoom={zoom}
-            mapClass="map-half-page"
-            updateLat={setLat}
-            updateLng={setLng}
-          ></MapBox>
-        </div>
-      )}
+        )}
+      </div>
     </div>
-    // </div>
   );
 };
 
