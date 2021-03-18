@@ -39,7 +39,7 @@ export const RegisterForm = (props) => {
     <Card className="mt-4">
       <CardBody>
         <h2 className="mb-4 text-center">Create Your Account</h2>
-        {error && <Alert>{error}</Alert>}
+        {error && <Alert color="danger">{error}</Alert>}
         {currentUser && currentUser.email && currentUser.role}
         <Form className="mt-4" onSubmit={handleSubmit}>
           <FormGroup>

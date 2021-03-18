@@ -10,14 +10,24 @@ import {
   CardTitle,
   CardSubtitle,
   Button,
+  Input,
+  InputGroupAddon,
+  InputGroup,
 } from "reactstrap";
+import PaginationRender from "./common/paginationRender.jsx";
+import { paginate } from "../utils/paginate.js";
+import FilterGroup from "./filterGroup.jsx";
 
 const ViewPotholes = () => {
   const [potholes, setPotholes] = useState(null);
   const [potholeImages, setPotholeImages] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const storageRef = storage.ref();
   const imagesRef = storageRef.child("images");
   const potholeArray = [];
+  const [pagedPotholes, setPagedPotholes] = useState(null);
+  const [selectedFilters, setSelectedFilters] = useState(null);
+  const [potholeNumber, setPotholeNumber] = useState(null);
 
   useEffect(() => {
     firestore
@@ -36,11 +46,32 @@ const ViewPotholes = () => {
       })
       .then(() => {
         setPotholes(potholeArray);
+        setPotholeNumber(potholeArray.length);
       })
       .catch((error) => {
         console.log("Error getting potholes: ", error);
       });
   }, []);
+
+  useEffect(() => {
+    if (potholes) {
+      if (selectedFilters === null || selectedFilters === "All") {
+        setPagedPotholes(paginate(potholes, currentPage, 4));
+        setPotholeNumber(potholes.length);
+      } else {
+        const filtered = potholes.filter(
+          (pothole) => pothole.size === selectedFilters
+        );
+
+        potholes.forEach((pothole) => {
+          console.log("pothole size is ", pothole.size);
+        });
+
+        setPotholeNumber(filtered.length);
+        setPagedPotholes(paginate(filtered, currentPage, 4));
+      }
+    }
+  }, [potholes, currentPage, selectedFilters]);
 
   const renderPotholes = (potholes) => {
     console.log(potholes);
@@ -80,6 +111,11 @@ const ViewPotholes = () => {
         );
       });
     }
+  };
+
+  const handlePageChange = (page) => {
+    console.log(page);
+    setCurrentPage(page);
   };
 
   // const getPotholeImages = (potholes) => {
@@ -131,9 +167,47 @@ const ViewPotholes = () => {
       {/* <div className="container" id="no-margin-padding">
         <div className="row">{potholes && renderPotholes(potholes)}</div>
       </div> */}
-
-      <div className="flex-container">
-        {potholes && renderPotholes(potholes)}
+      <div className="d-flex justify-content-center bg-light">
+        <InputGroup size="lg" className="mt-2 mb-4 ml-4 mr-4 w-100 shadow-sm ">
+          <Input placeholder="Name of pothole..." className="border-0"></Input>
+          <InputGroupAddon addonType="append">
+            <Button color="primary">Search</Button>
+          </InputGroupAddon>
+        </InputGroup>
+      </div>
+      <div className="d-flex justify-content-center">
+        {potholes && (
+          <div>
+            <h2>Filters</h2>
+            <FilterGroup
+              filters={["All", "Small", "Medium", "Big"]}
+              filtersName={"Size"}
+              onFilterSelect={setSelectedFilters}
+            ></FilterGroup>
+          </div>
+        )}
+        <div>
+          <div className="d-flex justify-content-center">
+            {potholeNumber && (
+              <h6 className="mt-4">Showing {potholeNumber} potholes</h6>
+            )}
+          </div>
+          <div className="flex-container">
+            {pagedPotholes && renderPotholes(pagedPotholes)}
+          </div>
+          <div className="d-flex justify-content-center">
+            {potholes && (
+              <PaginationRender
+                itemsCount={potholeNumber}
+                pageSize={4}
+                onPageChange={handlePageChange}
+                currentPage={currentPage}
+              >
+                {console.log(potholes.length)}
+              </PaginationRender>
+            )}
+          </div>
+        </div>
       </div>
     </React.Fragment>
   );

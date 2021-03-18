@@ -63,6 +63,8 @@ const ViewAPothole = ({ match }) => {
       });
   }, []);
 
+  
+
   const renderImages = (images) => {
     if (images) {
       return images.map((image, index) => {
@@ -261,12 +263,13 @@ const ViewAPothole = ({ match }) => {
           <div className="col-md-8">
             <MapBox
               // id="scroll-map"
-              lat={lat}
-              lng={lng}
+              lat={pothole.location.lat}
+              lng={pothole.location.lng}
               zoom={zoom}
               mapClass="map-half-page"
               updateLat={setLat}
               updateLng={setLng}
+              displayOnly={true}
             ></MapBox>
           </div>
         )}

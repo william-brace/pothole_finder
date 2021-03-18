@@ -58,12 +58,12 @@ const NavBar = (props) => {
       });
   };
 
-
   return (
     <div>
       {console.log(`currentUserData: ${currentUserData}`)}
       {console.log(currentUser)}
-      <Navbar color="light" light expand="md" className="shadow-sm">
+      {/* className="shadow-sm" */}
+      <Navbar color="light" light expand="md">
         <NavbarBrand href="/">PotholeFinder</NavbarBrand>
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>

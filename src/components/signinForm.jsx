@@ -39,7 +39,7 @@ export const SigninForm = () => {
     <Card className="mt-4">
       <CardBody>
         <h2 className="mb-4 text-center">Sign In</h2>
-        {error && <Alert>{error}</Alert>}
+        {error && <Alert color="danger">{error}</Alert>}
         <Form className="mt-4" onSubmit={handleSubmit}>
           <FormGroup>
             {/* <Label for="exampleEmail">Email</Label> */}

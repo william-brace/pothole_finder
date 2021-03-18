@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Button, Form, FormGroup, Input } from "reactstrap";
+import { Button, Form, FormGroup, Input, Alert } from "reactstrap";
 import DatePicker from "react-datepicker";
 import BigInput from "./common/bigInput";
 import ImageUploader from "./common/imageUploader";
@@ -9,6 +9,7 @@ import TimePicker from "react-time-picker";
 import { storage, firestore } from "../firebase.js";
 import Select from "react-select";
 import makeAnimated from "react-select/animated";
+import Joi from "joi-browser";
 
 import ScrollSection from "./common/scrollSection";
 import SmallInput from "./common/smallInput";
@@ -27,14 +28,25 @@ const AddPotholes = () => {
 
   const animatedComponents = makeAnimated();
 
+  //States of view
   const [showCost, setShowCost] = useState(false);
   const [showSchedule, setShowSchedule] = useState(false);
   const [isDesktop, setDesktop] = useState(window.innerWidth > 720); //720 is bootstrap md breakpoint
-  const [startDate, setStartDate] = useState();
-  const [endDate, setEndDate] = useState();
+  const [scheduleListUsers, setScheduleListUsers] = useState([]); //Used to display the users in the dropdown to pick persons to schedule to the job
+  const [errors, setErrors] = useState();
+
+  //Input States
   const [selectedImages, setSelectedImages] = useState([]); //Image handler
-  const [selectedPersons, setSelectedPersons] = useState();
-  const [scheduleListUsers, setScheduleListUsers] = useState([]);
+  const [size, setSize] = useState("");
+  const [lng, setLng] = useState(null); //Location divided into lng and lat
+  const [lat, setLat] = useState(null);
+  const [description, setDescription] = useState("");
+  const [cost, setCost] = useState(null);
+  const [materials, setMaterials] = useState("");
+  const [priority, setPriority] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState(null);
+  const [selectedPersons, setSelectedPersons] = useState([]);
 
   const sizeRef = useRef(null);
   const locationRef = useRef(null);
@@ -45,8 +57,6 @@ const AddPotholes = () => {
   const dateRef = useRef(null);
   const personsRef = useRef(null);
 
-  const [lng, setLng] = useState();
-  const [lat, setLat] = useState();
   const [zoom, setZoom] = useState(10);
 
   const updateMedia = () => {
@@ -77,6 +87,148 @@ const AddPotholes = () => {
   //     console.log([-2.24, 53.48]);
   //   }
   // }, []);
+
+  const schema1 = {
+    images: Joi.array().required().min(1),
+    size: Joi.string().required(),
+    location: Joi.required(),
+    description: Joi.string().required(),
+  };
+
+  const schema2 = {
+    images: Joi.array().required().min(1),
+    size: Joi.string().required(),
+    location: Joi.required(),
+    description: Joi.string().required(),
+    cost: Joi.number().required(),
+    materials: Joi.string().required(),
+    priority: Joi.number().required(),
+  };
+
+  const schema3 = {
+    images: Joi.array().required().min(1),
+    size: Joi.string().required(),
+    location: Joi.required(),
+    description: Joi.string().required(),
+    startDate: Joi.date().required(),
+    endDate: Joi.date().required(),
+    personsAssigned: Joi.array().required().min(1),
+  };
+
+  const schema4 = {
+    images: Joi.array().required().min(1),
+    size: Joi.string().required(),
+    location: Joi.required(),
+    description: Joi.string().required(),
+    cost: Joi.number().required(),
+    materials: Joi.string().required(),
+    priority: Joi.number().required(),
+    startDate: Joi.date().required(),
+    endDate: Joi.date().required(),
+    personsAssigned: Joi.array().required().min(1),
+  };
+
+  const validate = () => {
+    console.log(`cost is  ${cost}`);
+
+    let result;
+
+    if (!showCost && !showSchedule) {
+      result = Joi.validate(
+        {
+          images: selectedImages,
+          size: size,
+          location: { lng: lng, lat: lat },
+          description: description,
+        },
+        schema1,
+        { abortEarly: false }
+      );
+    }
+
+    if (showCost && !showSchedule) {
+      result = Joi.validate(
+        {
+          images: selectedImages,
+          size: size,
+          location: { lng: lng, lat: lat },
+          description: description,
+          cost: cost,
+          materials: materials,
+          priority: priority,
+        },
+        schema2,
+        { abortEarly: false }
+      );
+    }
+
+    if (!showCost && showSchedule) {
+      result = Joi.validate(
+        {
+          images: selectedImages,
+          size: size,
+          location: { lng: lng, lat: lat },
+          description: description,
+          startDate: startDate,
+          endDate: endDate,
+          personsAssigned: selectedPersons,
+        },
+        schema3,
+        { abortEarly: false }
+      );
+    }
+
+    if (showCost && showSchedule) {
+      result = Joi.validate(
+        {
+          images: selectedImages,
+          size: size,
+          location: { lng: lng, lat: lat },
+          description: description,
+          cost: cost,
+          materials: materials,
+          priority: priority,
+          startDate: startDate,
+          endDate: endDate,
+          personsAssigned: selectedPersons,
+        },
+        schema4,
+        { abortEarly: false }
+      );
+    }
+    // const result = Joi.validate(
+    //   {
+    //     images: selectedImages,
+    //     size: size,
+    //     location: { lng: lng, lat: lat },
+    //     description: description,
+    //     cost: cost,
+    //     materials: materials,
+    //     priority: priority,
+    //     startDate: startDate,
+    //     endDate: endDate,
+    //     personsAssigned: selectedPersons,
+    //   },
+    //   schema1
+    // );
+
+    // images: selectedImages,
+    //     size: size,
+    //     location: { lng: lng, lat: lat },
+    //     description: description,
+    //     cost: cost,
+    //     materials: materials,
+    //     priority: priority,
+    //     startDate: startDate,
+    //     endDate: endDate,
+    //     personsAssigned: selectedPersons,
+    console.log(result);
+
+    if (!result.error) return null;
+    const errors = {};
+    for (let item of result.error.details) errors[item.path[0]] = item.message;
+    return errors;
+  };
 
   useEffect(() => {
     if (showSchedule === true) {
@@ -186,6 +338,14 @@ const AddPotholes = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    //Validate fields and return if they are errors
+    // after setting state for errors which will then
+    // be used to display with alerts in the form
+    const results = validate();
+    setErrors(results);
+    console.log(results);
+    if (results) return;
+
     const imageArray = [];
 
     selectedImages.forEach((image, index, array) => {
@@ -217,12 +377,12 @@ const AddPotholes = () => {
               const pothole = {
                 userWhoAdded: currentUser.email,
                 images: imageArray,
-                size: sizeRef.current.value,
+                size: size,
                 location: { lng: lng, lat: lat },
-                description: descriptionRef.current.value,
-                cost: costRef.current.value,
-                materials: materialsRef.current.value,
-                priority: priorityRef.current.value,
+                description: description,
+                cost: cost,
+                materials: materials,
+                priority: priority,
                 startDate: startDate,
                 endDate: endDate,
                 personsAssigned: selectedPersons,
@@ -297,7 +457,11 @@ const AddPotholes = () => {
           <Form className="scroll-section-form">
             {/* <ImageUploader /> */}
             <FormGroup>
+              {errors && errors.images && (
+                <Alert color="danger">{errors.images}</Alert>
+              )}
               {renderImages(selectedImages)}
+
               <Input
                 className="border rounded py-2 px-2"
                 type={"file"}
@@ -307,11 +471,16 @@ const AddPotholes = () => {
                 multiple
                 onChange={handleImageChange}
               />
-
-              {console.log(selectedImages)}
             </FormGroup>
             <FormGroup>
-              <Input innerRef={sizeRef} type="select" name="size">
+              {errors && errors.size && (
+                <Alert color="danger">{errors.size}</Alert>
+              )}
+              <Input
+                onChange={(e) => setSize(e.target.value)}
+                type="select"
+                name="size"
+              >
                 <option value="" disabled selected hidden>
                   Size
                 </option>
@@ -343,9 +512,12 @@ const AddPotholes = () => {
                 ></Input>
               </FormGroup>
             )}
+            {errors && errors.description && (
+              <Alert color="danger">{errors.description}</Alert>
+            )}
             <FormGroup>
               <Input
-                innerRef={descriptionRef}
+                onChange={(e) => setDescription(e.target.value)}
                 type={"text"}
                 name={"description"}
                 placeholder={"Description"}
@@ -380,26 +552,40 @@ const AddPotholes = () => {
 
             {showCost && (
               <React.Fragment>
-                {console.log(showCost, costRef)}
                 <h5>Cost</h5>
                 <FormGroup>
+                  {errors && errors.cost && (
+                    <Alert color="danger">{errors.cost}</Alert>
+                  )}
+
                   <Input
-                    innerRef={costRef}
+                    // innerRef={costRef}
                     type={"number"}
                     name={"cost"}
+                    onChange={(e) => setCost(e.target.value)}
                     placeholder={"Estimated cost to repair"}
                   ></Input>
                 </FormGroup>
                 <FormGroup>
+                  {errors && errors.materials && (
+                    <Alert color="danger">{errors.materials}</Alert>
+                  )}
                   <Input
-                    innerRef={materialsRef}
+                    onChange={(e) => setMaterials(e.target.value)}
                     type={"text"}
                     name={"materials"}
                     placeholder={"Estimated materials required to repair"}
                   ></Input>
                 </FormGroup>
                 <FormGroup>
-                  <Input type="select" name="priority" innerRef={priorityRef}>
+                  {errors && errors.priority && (
+                    <Alert color="danger">{errors.priority}</Alert>
+                  )}
+                  <Input
+                    type="select"
+                    name="priority"
+                    onChange={(e) => setPriority(e.target.value)}
+                  >
                     <option value="" disabled selected hidden>
                       Priority rating - 1-5
                     </option>
@@ -421,6 +607,9 @@ const AddPotholes = () => {
               name={"date"}
               placeholder={"Schedule a date for reapir"}
             /> */}
+                {errors && errors.startDate && (
+                  <Alert color="danger">{errors.startDate}</Alert>
+                )}
                 <DatePicker
                   selected={startDate}
                   onChange={(date) => setStartDate(date)}
@@ -428,6 +617,9 @@ const AddPotholes = () => {
                   dateFormat="d, MMMM, yyyy h:mm aa"
                   showTimeInput
                 />
+                {errors && errors.endDate && (
+                  <Alert color="danger">{errors.endDate}</Alert>
+                )}
                 <DatePicker
                   selected={endDate}
                   onChange={(date) => setEndDate(date)}
@@ -459,6 +651,9 @@ const AddPotholes = () => {
                   name={"personsadded"}
                   placeholder={"Persons Added"}
                 /> */}
+                {errors && errors.personsAssigned && (
+                  <Alert color="danger">{errors.personsAssigned}</Alert>
+                )}
                 <Select
                   closeMenuOnSelect={false}
                   components={animatedComponents}
