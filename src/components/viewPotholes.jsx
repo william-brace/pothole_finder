@@ -158,6 +158,11 @@ const ViewPotholes = () => {
   //   });
   // };
 
+  const handleFilterSelect = (filter) => {
+    setCurrentPage(1);
+    setSelectedFilters(filter);
+  };
+
   return (
     <React.Fragment>
       {/* {getPotholeImages(potholes)}
@@ -182,7 +187,7 @@ const ViewPotholes = () => {
             <FilterGroup
               filters={["All", "Small", "Medium", "Big"]}
               filtersName={"Size"}
-              onFilterSelect={setSelectedFilters}
+              onFilterSelect={handleFilterSelect}
             ></FilterGroup>
           </div>
         )}
