@@ -16,6 +16,12 @@ import SmallInput from "./common/smallInput";
 import { useAuth } from "../contexts/AuthContext";
 import Map from "./map";
 import MapBox from "./mapBox";
+import {
+  uniqueNamesGenerator,
+  adjectives,
+  colors,
+  animals,
+} from "unique-names-generator";
 
 const AddPotholes = () => {
   const {
@@ -47,6 +53,7 @@ const AddPotholes = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState(null);
   const [selectedPersons, setSelectedPersons] = useState([]);
+  const [potholeName, setPotholeName] = useState(null);
 
   const sizeRef = useRef(null);
   const locationRef = useRef(null);
@@ -65,12 +72,55 @@ const AddPotholes = () => {
 
   useEffect(() => {
     window.addEventListener("resize", updateMedia);
+    console.log(
+      uniqueNamesGenerator({
+        dictionaries: [adjectives, colors, animals],
+        length: 2,
+      })
+    );
     return () => window.removeEventListener("resize", updateMedia);
   });
 
   useEffect(() => {
     console.log("Hello");
   }, [showSchedule == true]);
+
+  // useEffect(() => {
+  //   let potholeArray;
+  //   let potholeNamey;
+  //   let repeat = true;
+
+  //   while ((repeat = true)) {
+  //     repeat = false;
+
+  //     potholeNamey = uniqueNamesGenerator({
+  //       dictionaries: [adjectives, colors, animals],
+  //       length: 2,
+  //     });
+
+  //     firestore
+  //       .collection("potholes")
+  //       .get()
+  //       .then((querySnapshot) => {
+  //         querySnapshot.forEach((pothole) => {
+  //           console.log(`raw potholes  `, pothole);
+  //           console.log(pothole.id, " => ", pothole.data().pothole);
+
+  //           const potholeData = { ...pothole.data().pothole, id: pothole.id };
+  //           console.log(`pothole data for specific pothole is`, potholeData);
+  //           potholeArray.push(potholeData);
+  //           console.log(pothole.data().pothole.size);
+
+  //           if (pothole.name === potholeNamey) repeat = true;
+  //         });
+  //       })
+  //       .then(() => {})
+  //       .catch((error) => {
+  //         console.log("Error getting potholes: ", error);
+  //       });
+  //   }
+  //   setPotholeName(potholeNamey);
+  // }, []);
 
   // useEffect(() => {
   //   navigator.geolocation.getCurrentPosition(successLocation, errorLocation, {
@@ -376,6 +426,10 @@ const AddPotholes = () => {
             if (imageArray.length === array.length) {
               const pothole = {
                 userWhoAdded: currentUser.email,
+                name: uniqueNamesGenerator({
+                  dictionaries: [adjectives, colors, animals],
+                  length: 2,
+                }),
                 images: imageArray,
                 size: size,
                 location: { lng: lng, lat: lat },

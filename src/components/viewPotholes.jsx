@@ -17,6 +17,7 @@ import {
 import PaginationRender from "./common/paginationRender.jsx";
 import { paginate } from "../utils/paginate.js";
 import FilterGroup from "./filterGroup.jsx";
+import SearchGroup from "./common/searchGroup";
 
 const ViewPotholes = () => {
   const [potholes, setPotholes] = useState(null);
@@ -28,6 +29,8 @@ const ViewPotholes = () => {
   const [pagedPotholes, setPagedPotholes] = useState(null);
   const [selectedFilters, setSelectedFilters] = useState(null);
   const [potholeNumber, setPotholeNumber] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [checkedIndex, setCheckedIndex] = useState(0);
 
   useEffect(() => {
     firestore
@@ -53,25 +56,37 @@ const ViewPotholes = () => {
       });
   }, []);
 
+  //Dealing with searching and filtering the potholes before paginating and display
   useEffect(() => {
     if (potholes) {
-      if (selectedFilters === null || selectedFilters === "All") {
-        setPagedPotholes(paginate(potholes, currentPage, 4));
-        setPotholeNumber(potholes.length);
-      } else {
-        const filtered = potholes.filter(
-          (pothole) => pothole.size === selectedFilters
+      let filtered = potholes;
+
+      if (searchQuery) {
+        filtered = potholes.filter((pothole) =>
+          pothole.name.toLowerCase().startsWith(searchQuery.toLowerCase())
         );
-
-        potholes.forEach((pothole) => {
-          console.log("pothole size is ", pothole.size);
-        });
-
+        console.log("filtered issss ", filtered);
         setPotholeNumber(filtered.length);
         setPagedPotholes(paginate(filtered, currentPage, 4));
+      } else {
+        if (selectedFilters === null || selectedFilters === "All") {
+          setPagedPotholes(paginate(potholes, currentPage, 4));
+          setPotholeNumber(potholes.length);
+        } else {
+          filtered = potholes.filter(
+            (pothole) => pothole.size === selectedFilters
+          );
+
+          potholes.forEach((pothole) => {
+            console.log("pothole size is ", pothole.size);
+          });
+
+          setPotholeNumber(filtered.length);
+          setPagedPotholes(paginate(filtered, currentPage, 4));
+        }
       }
     }
-  }, [potholes, currentPage, selectedFilters]);
+  }, [potholes, currentPage, selectedFilters, searchQuery]);
 
   const renderPotholes = (potholes) => {
     console.log(potholes);
@@ -82,10 +97,10 @@ const ViewPotholes = () => {
           <Card>
             <CardImg src={pothole.images[0]} alt={pothole.description} />
             <CardBody>
-              <CardTitle tag="h4">{pothole.size}</CardTitle>
+              <CardTitle tag="h5">{pothole.name}</CardTitle>
               <div className="d-flex justify-content-start">
                 <CardSubtitle tag="h6" className="mb-2 text-muted">
-                  $135
+                  {pothole.size}
                 </CardSubtitle>
                 <CardSubtitle tag="h6" className="mb-2 text-muted ml-4">
                   25 Fix it's!
@@ -118,67 +133,24 @@ const ViewPotholes = () => {
     setCurrentPage(page);
   };
 
-  // const getPotholeImages = (potholes) => {
-  //   if (potholes) {
-  //     return potholes.forEach((pothole, index) => {
-  //       storageRef
-  //         .child(`images/${pothole.images[0]}`)
-  //         .getDownloadURL()
-  //         .then((url) => {
-  //           potholeArray.push(url);
-  //         })
-  //         .then(() => {
-  //           setPotholeImages(potholeArray);
-  //         })
-  //         .catch((e) => {
-  //           console.log(`eror getting pothole images ${e}`);
-  //         });
-  //     });
-  //   }
-  // };
+  const handleSearch = (query) => {
+    console.log(query);
+    setSelectedFilters("All");
+    setCheckedIndex(0);
+    setSearchQuery(query);
+  };
 
-  // const renderImages = (potholeImages) => {
-  //   return potholeArray.map((image) => {
-  //     return (
-  //       <Card className="col">
-  //         <CardImg top width="30%" src={image} alt={"helo"} />
-  //         <CardBody>
-  //           <CardTitle tag="h5">Card title</CardTitle>
-  //           <CardSubtitle tag="h6" className="mb-2 text-muted">
-  //             Card subtitle
-  //           </CardSubtitle>
-  //           <CardText>
-  //             Some quick example text to build on the card title and make up the
-  //             bulk of the card's content.
-  //           </CardText>
-  //           <Button>Button</Button>
-  //         </CardBody>
-  //       </Card>
-  //     );
-  //   });
-  // };
-
-  const handleFilterSelect = (filter) => {
+  const handleRadioChange = (filter, index) => {
     setCurrentPage(1);
+    setSearchQuery("");
     setSelectedFilters(filter);
+    setCheckedIndex(index);
   };
 
   return (
     <React.Fragment>
-      {/* {getPotholeImages(potholes)}
-      {console.log(potholeArray)}
-      {renderImages(potholeImages)} */}
-
-      {/* <div className="container" id="no-margin-padding">
-        <div className="row">{potholes && renderPotholes(potholes)}</div>
-      </div> */}
       <div className="d-flex justify-content-center bg-light">
-        <InputGroup size="lg" className="mt-2 mb-4 ml-4 mr-4 w-100 shadow-sm ">
-          <Input placeholder="Name of pothole..." className="border-0"></Input>
-          <InputGroupAddon addonType="append">
-            <Button color="primary">Search</Button>
-          </InputGroupAddon>
-        </InputGroup>
+        <SearchGroup onSearch={handleSearch} value={searchQuery}></SearchGroup>
       </div>
       <div className="d-flex justify-content-center">
         {potholes && (
@@ -187,7 +159,8 @@ const ViewPotholes = () => {
             <FilterGroup
               filters={["All", "Small", "Medium", "Big"]}
               filtersName={"Size"}
-              onFilterSelect={handleFilterSelect}
+              selectedIndex={checkedIndex}
+              onRadioChange={handleRadioChange}
             ></FilterGroup>
           </div>
         )}

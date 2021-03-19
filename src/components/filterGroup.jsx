@@ -1,7 +1,12 @@
 import React, { useEffect } from "react";
 import { Form, FormGroup, Label, Input } from "reactstrap";
 
-const FilterGroup = ({ filters, filtersName, onFilterSelect }) => {
+const FilterGroup = ({
+  filters,
+  filtersName,
+  selectedIndex,
+  onRadioChange,
+}) => {
   return (
     <Form className="mt-4">
       <h5>{filtersName}</h5>
@@ -10,9 +15,9 @@ const FilterGroup = ({ filters, filtersName, onFilterSelect }) => {
           <Label check>
             <Input
               type="radio"
-              onClick={() => onFilterSelect(filter)}
               name={filtersName}
-              defaultChecked={index === 0}
+              checked={index === selectedIndex}
+              onChange={() => onRadioChange(filter, index)}
             />
             {filter}
           </Label>
