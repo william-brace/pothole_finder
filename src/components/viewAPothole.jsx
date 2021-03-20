@@ -23,6 +23,7 @@ const ViewAPothole = ({ match }) => {
   const [isDesktop, setDesktop] = useState(window.innerWidth > 720); //720 is bootstrap md breakpoint
   const [startDate, setStartDate] = useState(new Date());
   const [selectedImages, setSelectedImages] = useState([]); //Image handler
+  const [parish, setParish] = useState(null);
 
   const sizeRef = useRef("Small");
   const locationRef = useRef("Here");
@@ -62,8 +63,6 @@ const ViewAPothole = ({ match }) => {
         console.log("Error getting document:", error);
       });
   }, []);
-
-  
 
   const renderImages = (images) => {
     if (images) {
@@ -119,21 +118,22 @@ const ViewAPothole = ({ match }) => {
               </FormGroup>
             )}
 
-            {pothole.location && (
+            {pothole.location && parish && (
               <FormGroup>
                 <Input
                   innerRef={locationRef}
-                  type="text"
+                  type="textarea"
                   name="location"
-                  value={`Location is ${pothole.location.lat}, ${pothole.location.lng}`}
+                  value={`Location: ${pothole.location.lat}, ${pothole.location.lng}\nParish: ${parish}`}
                   disabled
+                  style={{ resize: "none" }}
                 ></Input>
               </FormGroup>
             )}
             <FormGroup>
               <Input
                 innerRef={descriptionRef}
-                type={"text"}
+                type={"textarea"}
                 name={"description"}
                 value={pothole.description}
                 disabled
@@ -157,6 +157,7 @@ const ViewAPothole = ({ match }) => {
                   updateLat={setLat}
                   updateLng={setLng}
                   displayOnly={true}
+                  setParish={setParish}
                 ></MapBox>
               </div>
             )}
@@ -259,7 +260,7 @@ const ViewAPothole = ({ match }) => {
             )}
           </Form>
         </ScrollSection>
-        {isDesktop && (
+        {isDesktop && pothole.location && (
           <div className="col-md-8">
             <MapBox
               // id="scroll-map"

@@ -16,12 +16,32 @@ const MapBox = ({
   mapClass = "map-full-page",
   updateLat,
   updateLng,
+  setParish,
   displayOnly = false,
 }) => {
   const mapContainer = useRef();
   // const [lng, setLng] = useState(-59.5432);
   // const [lat, setLat] = useState(13.1939);
   // const [zoom, setZoom] = useState(10);
+
+  fetch(
+    "https://api.mapbox.com/geocoding/v5/mapbox.places/" +
+      lng +
+      "," +
+      lat +
+      ".json?types=region&access_token=" +
+      "pk.eyJ1Ijoia2lsbGF3aWwiLCJhIjoiY2ttNHdteTZ6MDhteDJ2bzV6N3J6dmhsbCJ9.WJ75_MdchNdUTCSzdODKHg"
+  )
+    .then((response) => {
+      return response.json();
+    })
+    .then((myJson) => {
+      console.log(myJson.features[0].place_name.split(",")[0]);
+      setParish(myJson.features[0].place_name.split(",")[0]);
+    })
+    .catch((e) => {
+      console.log(e);
+    });
 
   useEffect(() => {
     const map = new mapboxgl.Map({

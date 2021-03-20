@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Button, Form, FormGroup, Input, Alert } from "reactstrap";
+import { Button, Form, FormGroup, Input, Alert, CustomInput } from "reactstrap";
 import DatePicker from "react-datepicker";
 import BigInput from "./common/bigInput";
 import ImageUploader from "./common/imageUploader";
@@ -40,6 +40,7 @@ const AddPotholes = () => {
   const [isDesktop, setDesktop] = useState(window.innerWidth > 720); //720 is bootstrap md breakpoint
   const [scheduleListUsers, setScheduleListUsers] = useState([]); //Used to display the users in the dropdown to pick persons to schedule to the job
   const [errors, setErrors] = useState();
+  const [parish, setParish] = useState(null);
 
   //Input States
   const [selectedImages, setSelectedImages] = useState([]); //Image handler
@@ -515,13 +516,9 @@ const AddPotholes = () => {
                 <Alert color="danger">{errors.images}</Alert>
               )}
               {renderImages(selectedImages)}
-
-              <Input
-                className="border rounded py-2 px-2"
-                type={"file"}
-                name={"imageUploader"}
-                id="exampleName"
-                placeholder={"Upload Images Here"}
+              <CustomInput
+                type="file"
+                name="customFile"
                 multiple
                 onChange={handleImageChange}
               />
@@ -555,14 +552,15 @@ const AddPotholes = () => {
               </FormGroup>
             )}
 
-            {lat && lng && (
+            {lat && lng && parish && (
               <FormGroup>
                 <Input
                   innerRef={locationRef}
-                  type="text"
+                  type="textarea"
                   name="location"
-                  value={`Location is ${lat}, ${lng}`}
+                  value={`Location: ${lat}, ${lng}\nParish: ${parish}`}
                   disabled
+                  style={{ resize: "none" }}
                 ></Input>
               </FormGroup>
             )}
@@ -594,6 +592,7 @@ const AddPotholes = () => {
                   mapClass="map-scroll"
                   updateLat={setLat}
                   updateLng={setLng}
+                  setParish={setParish}
                 ></MapBox>
               </div>
             )}

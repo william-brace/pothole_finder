@@ -11,6 +11,7 @@ import Map from "./components/map";
 import ViewPotholes from "./components/viewPotholes";
 import MapBox from "./components/mapBox";
 import ViewAPothole from "./components/viewAPothole";
+import MapPageMap from "./components/mapPageMap";
 
 function App() {
   const user = {
@@ -48,7 +49,7 @@ function App() {
             <Route path="/addpotholes" component={AddPotholes} />
             <Route path="/viewpotholes" component={ViewPotholes} />
             <Route path="/viewapothole/:id" component={ViewAPothole} />
-            <Route path="/map" component={MapBox} />
+            <Route path="/map" component={MapPageMap} />
 
             {/* <Route path="/not-found" component={NotFound} /> */}
             <Redirect from="/" exact to="/" />
