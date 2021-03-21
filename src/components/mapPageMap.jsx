@@ -20,20 +20,20 @@ const MapPageMap = ({
   updateLat,
   updateLng,
   displayOnly = false,
+  displayPotholes,
+  setDisplayPotholes,
+  potholeList,
+  setPotholeList,
+  markers,
 }) => {
   const mapContainer = useRef();
-  // const [lng, setLng] = useState(-59.5432);
-  // const [lat, setLat] = useState(13.1939);
-  // const [zoom, setZoom] = useState(10);
-  const potholeArray = [];
-  const [displayPotholes, setDisplayPotholes] = useState(null);
+  let map = useRef();
 
-  const renderPotholes = () => {
-    //loop through pothole state and render all from there
-  };
+  const potholeArray = [];
+  let potholeArrayParishes = [];
 
   useEffect(() => {
-    const map = new mapboxgl.Map({
+    map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: "mapbox://styles/mapbox/streets-v11",
       center: [lng, lat],
@@ -44,43 +44,9 @@ const MapPageMap = ({
       ],
     });
 
-    map.on("click", (e) => {
-      fetch(
-        "https://api.mapbox.com/geocoding/v5/mapbox.places/" +
-          e.lngLat.lng +
-          "," +
-          e.lngLat.lat +
-          ".json?types=region&access_token=" +
-          "pk.eyJ1Ijoia2lsbGF3aWwiLCJhIjoiY2ttNHdteTZ6MDhteDJ2bzV6N3J6dmhsbCJ9.WJ75_MdchNdUTCSzdODKHg"
-      )
-        .then((response) => {
-          return response.json();
-        })
-        .then((myJson) => {
-          console.log(myJson.features[0].place_name.split(",")[0]);
-        })
-        .catch((e) => {
-          console.log(e);
-        });
-    });
+    console.log(`map is defined`);
 
-    // map.on("click", function (e) {
-    //   $.get(
-    //     "https://api.mapbox.com/geocoding/v5/mapbox.places/" +
-    //       e.lngLat.lng +
-    //       "," +
-    //       e.lngLat.lat +
-    //       ".json?access_token=" +
-    //       api_key,
-    //     function (data) {
-    //       console.log(data);
-    //     }
-    //   ).fail(function (jqXHR, textStatus, errorThrown) {
-    //     alert("There was an error while geocoding: " + errorThrown);
-    //   });
-    //});
-
-    firestore
+    return firestore
       .collection("potholes")
       .get()
       .then((querySnapshot) => {
@@ -93,27 +59,48 @@ const MapPageMap = ({
           potholeArray.push(potholeData);
           console.log(pothole.data().pothole.size);
         });
+        console.log("first");
+      })
+
+      .then((data) => {
+        let urls = [];
+        console.log("second");
+        potholeArray.forEach((pothole) => {
+          urls.push(
+            "https://api.mapbox.com/geocoding/v5/mapbox.places/" +
+              pothole.location.lng +
+              "," +
+              pothole.location.lat +
+              ".json?types=region&access_token=" +
+              "pk.eyJ1Ijoia2lsbGF3aWwiLCJhIjoiY2ttNHdteTZ6MDhteDJ2bzV6N3J6dmhsbCJ9.WJ75_MdchNdUTCSzdODKHg"
+          );
+        });
+
+        console.log("third");
+
+        return Promise.all(
+          urls.map((url, index) =>
+            fetch(url)
+              .then((response) => {
+                return response.json();
+              })
+              .then((myJson) => {
+                console.log(myJson.features[0].place_name.split(",")[0]);
+                potholeArrayParishes.push({
+                  ...potholeArray[index],
+                  parish: myJson.features[0].place_name.split(",")[0],
+                });
+                console.log("Inside api fetch ", index);
+              })
+              .catch((e) => console.log(e))
+          )
+        );
       })
       .then(() => {
-        setDisplayPotholes(potholeArray);
-
-        potholeArray.forEach((pothole) => {
-          var marker = new mapboxgl.Marker()
-            .setLngLat([pothole.location.lng, pothole.location.lat])
-            .setPopup(
-              new mapboxgl.Popup({ offset: 25 }) // add popups
-                .setHTML(
-                  "<h3>" +
-                    pothole.name +
-                    "</h3><p>" +
-                    pothole.description +
-                    "</p><a href='/viewapothole/" +
-                    pothole.id +
-                    "'>View</a>"
-                )
-            )
-            .addTo(map);
-        });
+        console.log("potholeArrayParishes", potholeArrayParishes);
+        console.log("fifth");
+        setDisplayPotholes(potholeArrayParishes);
+        setPotholeList(potholeArrayParishes);
       })
       .catch((error) => {
         console.log("Error getting potholes: ", error);
@@ -125,8 +112,50 @@ const MapPageMap = ({
     // lat = e.lngLat.lat;
     // lng = e.lngLat.lng;
 
-    return () => map.remove();
+    //return () => map.remove();
   }, []);
+
+  useEffect(() => {
+    // map = new mapboxgl.Map({
+    //   container: mapContainer.current,
+    //   style: "mapbox://styles/mapbox/streets-v11",
+    //   center: [lng, lat],
+    //   zoom: zoom,
+    //   maxBounds: [
+    //     [-59.9832008375472, 12.978538993452617],
+    //     [-59.141592881512864, 13.390124403622153],
+    //   ],
+    // });
+    console.log(`display potholes in render is`, displayPotholes);
+    console.log(`map inside useEffect is`, map);
+    if (map.current) {
+      if (displayPotholes) {
+        console.log(`display potholes in render is`, displayPotholes);
+        displayPotholes.forEach((pothole) => {
+          var marker = new mapboxgl.Marker()
+            .setLngLat([pothole.location.lng, pothole.location.lat])
+            .setPopup(
+              new mapboxgl.Popup({ offset: 25 }) // add popups
+                .setHTML(
+                  "<h3>" +
+                    pothole.name +
+                    "</h3><p>" +
+                    pothole.description +
+                    "</p><a href='/viewapothole/" +
+                    pothole.id +
+                    "'>View</a>" +
+                    "<p>" +
+                    pothole.parish +
+                    "</p>"
+                )
+            )
+            .addTo(map.current);
+
+          markers.current.push(marker);
+        });
+      }
+    }
+  }, [displayPotholes]);
 
   return (
     <div>

@@ -271,6 +271,7 @@ const ViewAPothole = ({ match }) => {
               updateLat={setLat}
               updateLng={setLng}
               displayOnly={true}
+              setParish={setParish}
             ></MapBox>
           </div>
         )}

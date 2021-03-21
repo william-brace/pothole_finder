@@ -58,6 +58,7 @@ const ViewPotholes = () => {
 
   //Dealing with searching and filtering the potholes before paginating and display
   useEffect(() => {
+    
     if (potholes) {
       let filtered = potholes;
 
