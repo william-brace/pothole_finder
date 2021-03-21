@@ -2,8 +2,14 @@ import React, { useState } from "react";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import FilterGroup from "./filterGroup";
 
-const FilterModal = ({ buttonLabel, className, setSizeFilter }) => {
+const FilterModal = ({
+  buttonLabel,
+  className,
+  setSizeFilter,
+  setParishesFilter,
+}) => {
   const [checkedIndexSize, setCheckedIndexSize] = useState(0);
+  const [checkedIndexParishes, setCheckedIndexParishes] = useState(0);
 
   const [modal, setModal] = useState(false);
 
@@ -12,6 +18,12 @@ const FilterModal = ({ buttonLabel, className, setSizeFilter }) => {
   const handleRadioChangeSize = (filter, index) => {
     setCheckedIndexSize(index);
     setSizeFilter(filter);
+  };
+
+  const handleRadioChangeParishes = (filter, index) => {
+    console.log("parishes filter is", filter);
+    setCheckedIndexParishes(index);
+    setParishesFilter(filter);
   };
 
   return (
@@ -27,6 +39,25 @@ const FilterModal = ({ buttonLabel, className, setSizeFilter }) => {
             filtersName={"Size"}
             selectedIndex={checkedIndexSize}
             onRadioChange={handleRadioChangeSize}
+          ></FilterGroup>
+          <FilterGroup
+            filters={[
+              "All",
+              "St. James",
+              "Christ Church",
+              "St. Michael",
+              "St. Philip",
+              "St. George",
+              "St. John",
+              "St. Joseph",
+              "St. Andrew",
+              "St. Peter",
+              "St. Lucy",
+              "St. Thomas",
+            ]}
+            filtersName={"Parishes"}
+            selectedIndex={checkedIndexParishes}
+            onRadioChange={handleRadioChangeParishes}
           ></FilterGroup>
         </ModalBody>
         <ModalFooter>

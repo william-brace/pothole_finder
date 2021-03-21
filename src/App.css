@@ -173,11 +173,21 @@ html {
   border-radius: 4px;
 }
 
+.googleMapsButton {
+  z-index: 1;
+  position: absolute;
+  margin: 0.5rem;
+  border-radius: 4px;
+}
+
 /* .react-time-picker__inputGroup,
 .react-time-picker__inputGroup__input,
 .react-time-picker__wrapper {
   width: 100%;
 } */
+a {
+  text-decoration: none !important;
+}
 
 .modal {
   padding: 0 !important;

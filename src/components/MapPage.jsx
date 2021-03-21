@@ -5,6 +5,8 @@ import MapPageMap from "./mapPageMap";
 
 const MapPage = () => {
   const [sizeFilter, setSizeFilter] = useState(null);
+  const [parishesFilter, setParishesFilter] = useState(null);
+
   const [displayPotholes, setDisplayPotholes] = useState();
   const [filteredPotholes, setFilteredPotholes] = useState();
   const [potholeList, setPotholeList] = useState(null);
@@ -20,25 +22,30 @@ const MapPage = () => {
     if (potholeList) {
       console.log(potholeList);
       let potholes = potholeList;
+      let filtered = potholeList;
       if (sizeFilter) {
-        if (sizeFilter === "All") return setDisplayPotholes(potholes);
-
-        let filtered = potholes.filter(
-          (pothole) => pothole.size === sizeFilter
-        );
-        console.log("filtered list is", filtered);
-        setDisplayPotholes(filtered);
-        removeMarkers();
+        if (sizeFilter != "All") {
+          filtered = potholes.filter((pothole) => pothole.size === sizeFilter);
+          console.log("filtered list is", filtered);
+        }
       }
+      if (parishesFilter) {
+        if (parishesFilter != "All") {
+          filtered = potholes.filter(
+            (pothole) => pothole.parish === parishesFilter
+          );
+          console.log("filtered list is", filtered);
+        }
+      }
+
+      setDisplayPotholes(filtered);
+
+      //   if (parishesFilter) {
+      //       if (parishesFilter != "")
+      //   }
     }
     // let filtered = potholes.filter((pothole) => pothole.size === sizeFilter);
-  }, [sizeFilter, potholeList]);
-
-  const removeMarkers = () => {
-    markers.current.forEach((marker) => {
-      marker.remove();
-    });
-  };
+  }, [sizeFilter, potholeList, parishesFilter]);
 
   return (
     <React.Fragment>
@@ -53,6 +60,7 @@ const MapPage = () => {
         className={"filterModal"}
         buttonLabel={"Add Filters"}
         setSizeFilter={setSizeFilter}
+        setParishesFilter={setParishesFilter}
       ></FilterModal>
     </React.Fragment>
   );

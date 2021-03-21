@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
+import { Button } from "reactstrap";
 
 import mapboxgl from "mapbox-gl/dist/mapbox-gl-csp";
 // eslint-disable-next-line import/no-webpack-loader-syntax
@@ -20,6 +21,8 @@ const MapBox = ({
   displayOnly = false,
 }) => {
   const mapContainer = useRef();
+  const [currentLocationLat, setCurrentLocationLat] = useState(null);
+  const [currentLocationLng, setCurrentLocationLng] = useState(null);
   // const [lng, setLng] = useState(-59.5432);
   // const [lat, setLat] = useState(13.1939);
   // const [zoom, setZoom] = useState(10);
@@ -99,6 +102,19 @@ const MapBox = ({
 
     if (displayOnly) {
       var marker = new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
+
+      navigator.geolocation.getCurrentPosition(successLocation, errorLocation, {
+        enableHighAccuracy: true,
+      });
+
+      function successLocation(position) {
+        console.log([position.coords.longitude, position.coords.latitude]);
+        setCurrentLocationLat(position.coords.latitude);
+        setCurrentLocationLng(position.coords.longitude);
+      }
+      function errorLocation() {
+        console.log([-2.24, 53.48]);
+      }
     }
   }, []);
 
@@ -107,7 +123,18 @@ const MapBox = ({
       {/* <div className="sidebar">
         Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
       </div> */}
-      <div className={mapClass} ref={mapContainer} />
+      {displayOnly && currentLocationLat && currentLocationLng && lat && lng && (
+        <Button color="primary" className="googleMapsButton">
+          <a
+            style={{ color: "white" }}
+            href={`https://www.google.com/maps/dir/?api=1&origin=${lat},${lng}&destination=${setCurrentLocationLat},${setCurrentLocationLng}`}
+            target="_blank"
+          >
+            Get Directions in Google Maps
+          </a>
+        </Button>
+      )}
+      <div className={mapClass} ref={mapContainer}></div>
     </div>
   );
 };

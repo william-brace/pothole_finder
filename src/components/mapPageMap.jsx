@@ -86,9 +86,15 @@ const MapPageMap = ({
               })
               .then((myJson) => {
                 console.log(myJson.features[0].place_name.split(",")[0]);
+
+                let parishValue = myJson.features[0].place_name.split(",")[0];
+                parishValue = parishValue.replace("Saint", "St.");
+
+                console.log("parish value is ", parishValue);
+
                 potholeArrayParishes.push({
                   ...potholeArray[index],
-                  parish: myJson.features[0].place_name.split(",")[0],
+                  parish: parishValue,
                 });
                 console.log("Inside api fetch ", index);
               })
@@ -115,6 +121,12 @@ const MapPageMap = ({
     //return () => map.remove();
   }, []);
 
+  const removeMarkers = () => {
+    markers.current.forEach((marker) => {
+      marker.remove();
+    });
+  };
+
   useEffect(() => {
     // map = new mapboxgl.Map({
     //   container: mapContainer.current,
@@ -126,6 +138,7 @@ const MapPageMap = ({
     //     [-59.141592881512864, 13.390124403622153],
     //   ],
     // });
+    removeMarkers();
     console.log(`display potholes in render is`, displayPotholes);
     console.log(`map inside useEffect is`, map);
     if (map.current) {
