@@ -756,6 +756,7 @@ const AddPotholes = () => {
               mapClass="map-half-page"
               updateLat={setLat}
               updateLng={setLng}
+              setParish={setParish}
             ></MapBox>
           </div>
         )}

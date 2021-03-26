@@ -28,6 +28,7 @@ const ViewPotholes = () => {
   const storageRef = storage.ref();
   const imagesRef = storageRef.child("images");
   const potholeArray = [];
+  let potholeArrayParishes = [];
   const [pagedPotholes, setPagedPotholes] = useState(null);
   const [selectedFilters, setSelectedFilters] = useState(null);
   const [potholeNumber, setPotholeNumber] = useState(null);
@@ -51,6 +52,30 @@ const ViewPotholes = () => {
     window.addEventListener("resize", updateMedia);
   });
 
+  // useEffect(() => {
+  //   firestore
+  //     .collection("potholes")
+  //     .get()
+  //     .then((querySnapshot) => {
+  //       querySnapshot.forEach((pothole) => {
+  //         console.log(`raw potholes  `, pothole);
+  //         console.log(pothole.id, " => ", pothole.data().pothole);
+
+  //         const potholeData = { ...pothole.data().pothole, id: pothole.id };
+  //         console.log(`pothole data for specific pothole is`, potholeData);
+  //         potholeArray.push(potholeData);
+  //         console.log(pothole.data().pothole.size);
+  //       });
+  //     })
+  //     .then(() => {
+  //       setPotholes(potholeArray);
+  //       setPotholeNumber(potholeArray.length);
+  //     })
+  //     .catch((error) => {
+  //       console.log("Error getting potholes: ", error);
+  //     });
+  // }, []);
+
   useEffect(() => {
     firestore
       .collection("potholes")
@@ -66,9 +91,52 @@ const ViewPotholes = () => {
           console.log(pothole.data().pothole.size);
         });
       })
+      .then((data) => {
+        let urls = [];
+        console.log("second");
+        potholeArray.forEach((pothole) => {
+          urls.push(
+            "https://api.mapbox.com/geocoding/v5/mapbox.places/" +
+              pothole.location.lng +
+              "," +
+              pothole.location.lat +
+              ".json?types=region&access_token=" +
+              "pk.eyJ1Ijoia2lsbGF3aWwiLCJhIjoiY2ttNHdteTZ6MDhteDJ2bzV6N3J6dmhsbCJ9.WJ75_MdchNdUTCSzdODKHg"
+          );
+        });
+
+        console.log("third");
+
+        return Promise.all(
+          urls.map((url, index) =>
+            fetch(url)
+              .then((response) => {
+                return response.json();
+              })
+              .then((myJson) => {
+                console.log(myJson.features[0].place_name.split(",")[0]);
+
+                let parishValue = myJson.features[0].place_name.split(",")[0];
+                parishValue = parishValue.replace("Saint", "St.");
+
+                console.log("parish value is ", parishValue);
+
+                potholeArrayParishes.push({
+                  ...potholeArray[index],
+                  parish: parishValue,
+                });
+                console.log("Inside api fetch ", index);
+              })
+              .catch((e) => console.log(e))
+          )
+        );
+      })
       .then(() => {
-        setPotholes(potholeArray);
-        setPotholeNumber(potholeArray.length);
+        console.log("potholeArrayParishes", potholeArrayParishes);
+        console.log("fifth");
+
+        setPotholes(potholeArrayParishes);
+        setPotholeNumber(potholeArrayParishes.length);
       })
       .catch((error) => {
         console.log("Error getting potholes: ", error);
@@ -99,7 +167,7 @@ const ViewPotholes = () => {
         }
         if (parishesFilter) {
           if (parishesFilter != "All") {
-            filtered = potholes.filter(
+            filtered = filtered.filter(
               (pothole) => pothole.parish === parishesFilter
             );
             console.log("filtered list is", filtered);
@@ -141,6 +209,11 @@ const ViewPotholes = () => {
                     {pothole.size}
                   </CardSubtitle>
                   <CardSubtitle tag="h7" className="mb-2 text-muted ml-4">
+                    {pothole.parish}
+                  </CardSubtitle>
+                </div>
+                <div className="d-flex justify-content-start">
+                  <CardSubtitle tag="h7" className="mb-2 text-muted">
                     25 Fix it's!
                   </CardSubtitle>
                 </div>
@@ -205,18 +278,6 @@ const ViewPotholes = () => {
     <React.Fragment>
       <div className="d-flex flex-column justify-content-center bg-secondary">
         <SearchGroup onSearch={handleSearch} value={searchQuery}></SearchGroup>
-        {!isDesktop && (
-          <FilterModal
-            className={"filterModal"}
-            buttonLabel={"Add Filters"}
-            setSizeFilter={setSizeFilter}
-            setParishesFilter={setParishesFilter}
-            checkedIndexSize={checkedIndexSize}
-            checkedIndexParishes={checkedIndexParishes}
-            setCheckedIndexSize={setCheckedIndexSize}
-            setCheckedIndexParishes={setCheckedIndexParishes}
-          ></FilterModal>
-        )}
       </div>
       {isDesktop && (
         <div className="d-flex justify-content-center">
@@ -255,7 +316,7 @@ const ViewPotholes = () => {
                       "St. Lucy",
                       "St. Thomas",
                     ]}
-                    filtersName={"Parishes"}
+                    filtersName={"Parish"}
                     selectedIndex={checkedIndexParishes}
                     onRadioChange={handleRadioChangeParishes}
                   ></FilterGroup>
@@ -283,8 +344,44 @@ const ViewPotholes = () => {
         </div>
       )}
       {!isDesktop && (
-        <div className="flex-container">
-          {pagedPotholes && renderPotholes(pagedPotholes)}
+        <div>
+          <div className="d-flex justify-content-center mt-3">
+            <FilterModal
+              className={"filterModal"}
+              buttonLabel={"Add Filters"}
+              setSizeFilter={setSizeFilter}
+              setParishesFilter={setParishesFilter}
+              checkedIndexSize={checkedIndexSize}
+              checkedIndexParishes={checkedIndexParishes}
+              setCheckedIndexSize={setCheckedIndexSize}
+              setCheckedIndexParishes={setCheckedIndexParishes}
+            ></FilterModal>
+          </div>
+          <div className="w-100">
+            <div className="d-flex justify-content-center">
+              {potholeNumber === 0 && (
+                <h6 className="mt-4">{potholeNumber} potholes found!</h6>
+              )}
+              {potholeNumber && (
+                <h6 className="mt-4">Showing {potholeNumber} potholes.</h6>
+              )}
+            </div>
+          </div>
+          <div className="flex-container">
+            {pagedPotholes && renderPotholes(pagedPotholes)}
+          </div>
+          <div className="d-flex justify-content-center">
+            {potholes && (
+              <PaginationRender
+                itemsCount={potholeNumber}
+                pageSize={2}
+                onPageChange={handlePageChange}
+                currentPage={currentPage}
+              >
+                {console.log(potholes.length)}
+              </PaginationRender>
+            )}
+          </div>
         </div>
       )}
 

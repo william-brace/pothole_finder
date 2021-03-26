@@ -35,7 +35,7 @@ const MapPage = () => {
       }
       if (parishesFilter) {
         if (parishesFilter != "All") {
-          filtered = potholes.filter(
+          filtered = filtered.filter(
             (pothole) => pothole.parish === parishesFilter
           );
           console.log("filtered list is", filtered);

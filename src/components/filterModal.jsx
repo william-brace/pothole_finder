@@ -29,7 +29,7 @@ const FilterModal = ({
 
   return (
     <div>
-      <Button color="danger" onClick={toggle}>
+      <Button color="primary" onClick={toggle} outline>
         {buttonLabel}
       </Button>
       <Modal isOpen={modal} toggle={toggle} className={className}>

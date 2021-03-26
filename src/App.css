@@ -59,7 +59,7 @@ html {
 
 .card {
   max-width: 13rem;
-  height: 16rem;
+  height: 17rem;
   margin: 1rem;
   border-radius: 2rem;
   margin-right: 0 !important;
@@ -308,4 +308,9 @@ a {
   .form-container_buttonContainer--button {
     width: 45%;
   }
+}
+
+.modal-button {
+  border: 1px solid #4441db;
+  color: white;
 }
