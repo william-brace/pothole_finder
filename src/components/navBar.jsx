@@ -12,14 +12,12 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "reactstrap";
-import { useHistory, Link } from "react-router-dom";
+import { useHistory, Link, useLocation, useRouteMatch } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-// import { getUserData } from "../firestoreQueries";
 
-const NavBar = (props) => {
-  const user = props.user;
+const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  // const [currentUserData, setCurrentUserData] = useState(null);
+
   const {
     logout,
     currentUser,
@@ -28,20 +26,6 @@ const NavBar = (props) => {
     setCurrentUserData,
   } = useAuth();
   const history = useHistory();
-
-  // const getCurrentUserData = () => {
-  //   if (currentUser) {
-  //     getUserData(currentUser.uid).then((userData) => {
-  //       setCurrentUserData(userData.data());
-  //     });
-  //   }
-  // };
-
-  // //Rund everytime the currentUser Changes
-  // useEffect(() => {
-  //   getCurrentUserData();
-  //   if (currentUserData) console.log(currentUserData.role);
-  // }, [currentUser]);
 
   const toggle = () => setIsOpen(!isOpen);
 
@@ -58,32 +42,92 @@ const NavBar = (props) => {
       });
   };
 
+  const [currentPath, setCurrentPath] = useState();
+
+  function SetRoute() {
+    const location = useLocation();
+    useEffect(() => {
+      const currentPath = location.pathname;
+      setCurrentPath(location.pathname);
+
+      const searchParams = new URLSearchParams(location.search);
+    }, [location]);
+    return null;
+  }
+
   return (
     <div>
+      {SetRoute()}
       {console.log(`currentUserData: ${currentUserData}`)}
       {console.log(currentUser)}
+      {console.log(currentPath)}
       {/* className="shadow-sm" */}
-      <Navbar color="light" light expand="md">
-        <NavbarBrand href="/">PotholeFinder</NavbarBrand>
+      <Navbar
+        light
+        color={currentPath === "/" ? null : "secondary"}
+        expand="md"
+      >
+        <NavbarBrand
+          tag={Link}
+          to="/"
+          className="font-weight-bold text-primary "
+        >
+          PotholeFinder
+        </NavbarBrand>
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
-          <Nav className="mr-auto " navbar>
+          <Nav className="ml-auto" navbar>
             <NavItem>
-              <Link to="/addpotholes">Add Pothole</Link>
+              <NavLink
+                tag={Link}
+                to="/addpotholes"
+                className="navbar-item mx-3 nav-item nav-link"
+                style={{ color: "#112d4e" }}
+              >
+                Add Potholes
+              </NavLink>
             </NavItem>
             <NavItem>
-              <Link to="/map">Map</Link>
+              <NavLink
+                tag={Link}
+                to="/map"
+                style={{ color: "#112d4e" }}
+                className="navbar-item mx-3"
+              >
+                Map
+              </NavLink>
             </NavItem>
             <NavItem>
-              <Link to="/viewpotholes">View Potholes</Link>
+              <NavLink
+                tag={Link}
+                to="/viewpotholes"
+                className="navbar-item mx-3"
+                style={{ color: "#112d4e" }}
+              >
+                View Potholes
+              </NavLink>
             </NavItem>
             {!currentUserData && (
               <React.Fragment>
                 <NavItem>
-                  <Link to="/signin">Sign In</Link>
+                  <NavLink
+                    tag={Link}
+                    to="/signin"
+                    className="navbar-item mx-3"
+                    style={{ color: "#112d4e" }}
+                  >
+                    Sign In
+                  </NavLink>
                 </NavItem>
                 <NavItem>
-                  <Link to="/register">Register</Link>
+                  <NavLink
+                    tag={Link}
+                    to="/register"
+                    className="navbar-item mx-3"
+                    style={{ color: "#112d4e" }}
+                  >
+                    Register
+                  </NavLink>
                 </NavItem>
               </React.Fragment>
             )}
@@ -91,10 +135,25 @@ const NavBar = (props) => {
             {currentUserData && currentUserData.role === "person" && (
               <React.Fragment>
                 <NavItem>
-                  <NavLink href="/">Profile</NavLink>
+                  <NavLink
+                    tag={Link}
+                    to="/"
+                    className="navbar-item mx-3"
+                    style={{ color: "#112d4e" }}
+                  >
+                    Profile
+                  </NavLink>
                 </NavItem>
                 <NavItem>
-                  <NavLink onClick={handleLogout}>Logout</NavLink>
+                  <NavLink
+                    tag={Link}
+                    to="/"
+                    onClick={handleLogout}
+                    className="navbar-item mx-3"
+                    style={{ color: "#112d4e" }}
+                  >
+                    Logout
+                  </NavLink>
                 </NavItem>
               </React.Fragment>
             )}
@@ -103,29 +162,63 @@ const NavBar = (props) => {
                 currentUserData.role === "manager") && (
                 <React.Fragment>
                   <NavItem>
-                    <NavLink href="/">Schedule</NavLink>
+                    <NavLink
+                      tag={Link}
+                      to="/"
+                      className="navbar-item mx-3"
+                      style={{ color: "#112d4e" }}
+                    >
+                      Schedule
+                    </NavLink>
                   </NavItem>
                   <UncontrolledDropdown nav inNavbar>
-                    <DropdownToggle nav caret>
+                    <DropdownToggle
+                      nav
+                      caret
+                      className="navbar-item mx-3"
+                      style={{ color: "#112d4e" }}
+                    >
                       More
                     </DropdownToggle>
                     <DropdownMenu right>
                       <DropdownItem>
                         <NavItem>
-                          <NavLink href="/">Profile</NavLink>
+                          <NavLink
+                            tag={Link}
+                            to="/"
+                            className="navbar-item mx-3"
+                            style={{ color: "#112d4e" }}
+                          >
+                            Profile
+                          </NavLink>
                         </NavItem>
                       </DropdownItem>
                       {currentUserData.role === "manager" && (
                         <DropdownItem>
                           <NavItem>
-                            <NavLink href="/">Users</NavLink>
+                            <NavLink
+                              tag={Link}
+                              to="/"
+                              className="navbar-item mx-3"
+                              style={{ color: "#112d4e" }}
+                            >
+                              Users
+                            </NavLink>
                           </NavItem>
                         </DropdownItem>
                       )}
                       <DropdownItem divider />
                       <DropdownItem>
                         <NavItem>
-                          <NavLink onClick={handleLogout}>Logout</NavLink>
+                          <NavLink
+                            tag={Link}
+                            to="/"
+                            onClick={handleLogout}
+                            className="navbar-item mx-3"
+                            style={{ color: "#112d4e" }}
+                          >
+                            Logout
+                          </NavLink>
                         </NavItem>
                       </DropdownItem>
                     </DropdownMenu>

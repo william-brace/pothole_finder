@@ -36,60 +36,80 @@ export const RegisterForm = (props) => {
   }
 
   return (
-    <Card className="mt-4">
-      <CardBody>
-        <h2 className="mb-4 text-center">Create Your Account</h2>
-        {error && <Alert color="danger">{error}</Alert>}
-        {currentUser && currentUser.email && currentUser.role}
-        <Form className="mt-4" onSubmit={handleSubmit}>
-          <FormGroup>
-            {/* <Label for="exampleEmail">Email</Label> */}
-            <Input
-              ref={nameRef}
-              type="text"
-              name="name"
-              id="exampleName"
-              placeholder="Full Name"
-            />
-          </FormGroup>
-          <FormGroup>
-            {/* <Label for="exampleEmail">Email</Label> */}
-            <Input
-              innerRef={emailRef}
-              type="email"
-              name="email"
-              id="exampleEmail"
-              placeholder="Email"
-            />
-          </FormGroup>
-          <FormGroup>
-            {/* <Label for="examplePassword">Password</Label> */}
-            <Input
-              innerRef={passwordRef}
-              type="password"
-              name="password"
-              id="examplePassword"
-              placeholder="Password"
-            />
-          </FormGroup>
-          <div className="d-flex justify-content-between">
-            {!loading && (
-              <Button type="submit" color="primary">
-                Register
+    <div className="form-container">
+      <div className="mt-4">
+        <div className="form-container_inside">
+          <h1 className="mb-4 text-center text-primary">Create Your Account</h1>
+          {error && <Alert color="danger">{error}</Alert>}
+          {currentUser && currentUser.email && currentUser.role}
+          <Form onSubmit={handleSubmit}>
+            <FormGroup>
+              {/* <Label for="exampleEmail">Email</Label> */}
+              <Input
+                ref={nameRef}
+                type="text"
+                name="name"
+                id="exampleName"
+                placeholder="Full Name"
+                size="lg"
+              />
+            </FormGroup>
+            <FormGroup>
+              {/* <Label for="exampleEmail">Email</Label> */}
+              <Input
+                innerRef={emailRef}
+                type="email"
+                name="email"
+                id="exampleEmail"
+                placeholder="Email"
+                size="lg"
+              />
+            </FormGroup>
+            <FormGroup>
+              {/* <Label for="examplePassword">Password</Label> */}
+              <Input
+                innerRef={passwordRef}
+                type="password"
+                name="password"
+                id="examplePassword"
+                placeholder="Password"
+                size="lg"
+              />
+            </FormGroup>
+            <div className="form-container_buttonContainer">
+              {!loading && (
+                <Button
+                  type="submit"
+                  color="primary"
+                  className="form-container_buttonContainer--button"
+                  size="lg"
+                >
+                  Register
+                </Button>
+              )}
+              {loading && (
+                <Button
+                  type="submit"
+                  color="primary"
+                  className="form-container_buttonContainer--button"
+                  disabled
+                >
+                  Register
+                </Button>
+              )}
+              <Button
+                outline
+                className="form-container_buttonContainer--button"
+                color="primary"
+                size="lg"
+              >
+                <Link to="signin w-100 h-100">Sign In</Link>
               </Button>
-            )}
-            {loading && (
-              <Button type="submit" color="primary" disabled>
-                Register
-              </Button>
-            )}
-            <Button outline type="submit" color="primary">
-              <Link to="signin">Sign In</Link>
-            </Button>
-          </div>
-        </Form>
-      </CardBody>
-    </Card>
+            </div>
+          </Form>
+        </div>
+      </div>
+    </div>
   );
 };
 

@@ -159,7 +159,6 @@ const ViewAPothole = ({ match }) => {
                   displayOnly={true}
                   setParish={setParish}
                 ></MapBox>
-                
               </div>
             )}
             {/* <BigInput
