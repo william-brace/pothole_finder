@@ -7,10 +7,11 @@ const FilterModal = ({
   className,
   setSizeFilter,
   setParishesFilter,
+  checkedIndexSize,
+  checkedIndexParishes,
+  setCheckedIndexSize,
+  setCheckedIndexParishes,
 }) => {
-  const [checkedIndexSize, setCheckedIndexSize] = useState(0);
-  const [checkedIndexParishes, setCheckedIndexParishes] = useState(0);
-
   const [modal, setModal] = useState(false);
 
   const toggle = () => setModal(!modal);

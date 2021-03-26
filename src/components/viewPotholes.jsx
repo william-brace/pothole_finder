@@ -35,11 +35,16 @@ const ViewPotholes = () => {
   const [checkedIndex, setCheckedIndex] = useState(0);
   const [isDesktop, setDesktop] = useState(window.innerWidth > 720); //720 is bootstrap md breakpoint
 
+  //Filter states - Stores actual values corresponding to selected radio button
   const [sizeFilter, setSizeFilter] = useState(null);
   const [parishesFilter, setParishesFilter] = useState(null);
 
+  //checked states, keeps track of which radio buttons are checked by the index of each radio button in their filter group
+  const [checkedIndexSize, setCheckedIndexSize] = useState(0);
+  const [checkedIndexParishes, setCheckedIndexParishes] = useState(0);
+
   const updateMedia = () => {
-    setDesktop(window.innerWidth > 800); //720 is bootstrap md breakpoint
+    setDesktop(window.innerWidth > 800); //800 is bootstrap md breakpoint
   };
 
   useEffect(() => {
@@ -72,6 +77,7 @@ const ViewPotholes = () => {
 
   //Dealing with searching and filtering the potholes before paginating and display
   useEffect(() => {
+    // setCurrentPage(1)
     if (potholes) {
       let filtered = potholes;
 
@@ -83,24 +89,41 @@ const ViewPotholes = () => {
         setPotholeNumber(filtered.length);
         setPagedPotholes(paginate(filtered, currentPage, 2));
       } else {
-        if (selectedFilters === null || selectedFilters === "All") {
-          setPagedPotholes(paginate(potholes, currentPage, 2));
-          setPotholeNumber(potholes.length);
-        } else {
-          filtered = potholes.filter(
-            (pothole) => pothole.size === selectedFilters
-          );
-
-          potholes.forEach((pothole) => {
-            console.log("pothole size is ", pothole.size);
-          });
-
-          setPotholeNumber(filtered.length);
-          setPagedPotholes(paginate(filtered, currentPage, 2));
+        if (sizeFilter) {
+          if (sizeFilter != "All") {
+            filtered = potholes.filter(
+              (pothole) => pothole.size === sizeFilter
+            );
+            console.log("filtered list is", filtered);
+          }
         }
+        if (parishesFilter) {
+          if (parishesFilter != "All") {
+            filtered = potholes.filter(
+              (pothole) => pothole.parish === parishesFilter
+            );
+            console.log("filtered list is", filtered);
+          }
+        }
+        setPotholeNumber(filtered.length);
+        setPagedPotholes(paginate(filtered, currentPage, 2));
+
+        // if (selectedFilters === null || selectedFilters === "All") {
+        //   setPagedPotholes(paginate(potholes, currentPage, 2));
+        //   setPotholeNumber(potholes.length);
+        // } else {
+        //   filtered = potholes.filter(
+        //     (pothole) => pothole.size === selectedFilters
+        //   );
+        //   potholes.forEach((pothole) => {
+        //     console.log("pothole size is ", pothole.size);
+        //   });
+        //   setPotholeNumber(filtered.length);
+        //   setPagedPotholes(paginate(filtered, currentPage, 2));
+        // }
       }
     }
-  }, [potholes, currentPage, selectedFilters, searchQuery]);
+  }, [potholes, currentPage, sizeFilter, parishesFilter, searchQuery]);
 
   const renderPotholes = (potholes) => {
     console.log(potholes);
@@ -158,11 +181,24 @@ const ViewPotholes = () => {
     setSearchQuery(query);
   };
 
-  const handleRadioChange = (filter, index) => {
+  // const handleRadioChange = (filter, index) => {
+  //   setCurrentPage(1);
+  //   setSearchQuery("");
+  //   setSelectedFilters(filter);
+  //   setCheckedIndex(index);
+  // };
+
+  const handleRadioChangeSize = (filter, index) => {
     setCurrentPage(1);
-    setSearchQuery("");
-    setSelectedFilters(filter);
-    setCheckedIndex(index);
+    setCheckedIndexSize(index);
+    setSizeFilter(filter);
+  };
+
+  const handleRadioChangeParishes = (filter, index) => {
+    console.log("parishes filter is", filter);
+    setCurrentPage(1);
+    setCheckedIndexParishes(index);
+    setParishesFilter(filter);
   };
 
   return (
@@ -175,6 +211,10 @@ const ViewPotholes = () => {
             buttonLabel={"Add Filters"}
             setSizeFilter={setSizeFilter}
             setParishesFilter={setParishesFilter}
+            checkedIndexSize={checkedIndexSize}
+            checkedIndexParishes={checkedIndexParishes}
+            setCheckedIndexSize={setCheckedIndexSize}
+            setCheckedIndexParishes={setCheckedIndexParishes}
           ></FilterModal>
         )}
       </div>
@@ -197,8 +237,27 @@ const ViewPotholes = () => {
                   <FilterGroup
                     filters={["All", "Small", "Medium", "Big"]}
                     filtersName={"Size"}
-                    selectedIndex={checkedIndex}
-                    onRadioChange={handleRadioChange}
+                    selectedIndex={checkedIndexSize}
+                    onRadioChange={handleRadioChangeSize}
+                  ></FilterGroup>
+                  <FilterGroup
+                    filters={[
+                      "All",
+                      "St. James",
+                      "Christ Church",
+                      "St. Michael",
+                      "St. Philip",
+                      "St. George",
+                      "St. John",
+                      "St. Joseph",
+                      "St. Andrew",
+                      "St. Peter",
+                      "St. Lucy",
+                      "St. Thomas",
+                    ]}
+                    filtersName={"Parishes"}
+                    selectedIndex={checkedIndexParishes}
+                    onRadioChange={handleRadioChangeParishes}
                   ></FilterGroup>
                 </div>
 

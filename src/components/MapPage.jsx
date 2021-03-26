@@ -12,6 +12,10 @@ const MapPage = () => {
   const [potholeList, setPotholeList] = useState(null);
   const markers = useRef([]);
 
+  //checked states, keeps track of which radio buttons are checked
+  const [checkedIndexSize, setCheckedIndexSize] = useState(0);
+  const [checkedIndexParishes, setCheckedIndexParishes] = useState(0);
+
   useEffect(() => {
     console.log("sizeFilter changed", sizeFilter);
 
@@ -61,6 +65,10 @@ const MapPage = () => {
         buttonLabel={"Add Filters"}
         setSizeFilter={setSizeFilter}
         setParishesFilter={setParishesFilter}
+        checkedIndexSize={checkedIndexSize}
+        checkedIndexParishes={checkedIndexParishes}
+        setCheckedIndexSize={setCheckedIndexSize}
+        setCheckedIndexParishes={setCheckedIndexParishes}
       ></FilterModal>
     </React.Fragment>
   );
